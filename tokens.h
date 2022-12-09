@@ -7,6 +7,7 @@ TOKEN(MUL,      OP,      STR_CMP, "*")
 TOKEN(DIV,      OP,      STR_CMP, "/")
 TOKEN(EXP,      OP,      STR_CMP, "^")
 TOKEN(ASS,      OP,      STR_CMP, "=")
+TOKEN(PRCNT,    OP,      STR_CMP, "%")
 
 TOKEN(LES,      OP,      STR_CMP, "<")
 TOKEN(LEQ,      OP,      STR_CMP, "<=")
@@ -15,7 +16,11 @@ TOKEN(GEQ,      OP,      STR_CMP, ">=")
 TOKEN(EQ,       OP,      STR_CMP, "==")
 TOKEN(NEQ,      OP,      STR_CMP, "!=")
 
-TOKEN(AND,      OP,      STR_CMP, "&")
+TOKEN(OR,       OP,      STR_CMP, "or")
+TOKEN(AND,      OP,      STR_CMP, "and")
+
+TOKEN(INTRG,    OP,      STR_CMP, "?")
+TOKEN(TWDTS,    OP,      STR_CMP, ":")
 
 TOKEN(NVAR,     KEYWORD, STR_CMP, "var")
 TOKEN(IF,       KEYWORD, STR_CMP, "if")

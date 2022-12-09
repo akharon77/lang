@@ -6,31 +6,68 @@
 #include "tree.h"
 #include "dsl.h"
 
-void GetXorExpression(Stack *stk, TreeNode *value)
+void GetAssignExpression(Stack *stk, TreeNode *value)
 {
-    GetAndExpression(stk, value);
-
-    while (TestToken(stk, TOK_XOR))
+    GetLogicalExpression(stk, value);
+    
+    if (TestToken(stk, TOK_ASS))
     {
         NextToken(stk);
 
         TreeNode *next_val = NodeNew();
-        GetAndExpression(stk, next_val);
+        GetAssignExpression(stk, next_val);
+
+        TreeNodeCtor(value, TREE_NODE_TYPE_ASS
+    }
+}
+
+void GetLogicalExpression(Stack *stk, TreeNode *value)
+{
+    GetLogicalOrExpression(stk, value);
+
+    if (TestToken(stk, TOK_INTRG))
+    {
+        NextToken(stk);
+
+        TreeNode *true_expr = NodeNew();
+        GetExpression(stk, true_expr);
+
+        AssertToken(stk, NULL, TOK_TWDTS);
+        
+        TreeNode *false_expr = NodeNew();
+        GetLogicalExpression(stk, false_expr);
+
+        TreeNodeCtor(value, TREE_NODE_TYPE_CALL,
+                    {.var = NULL},
+                    CreateTreeNode(TREE_NODE_TYPE_FUNC, {.var = strdup("ternary")}, NULL, NULL),
+                    ARG(value, ARG(true_expr, ARG(false_expr, NULL))));
+    }
+}
+
+void GetLogicalOrExpression(Stack *stk, TreeNode *value)
+{
+    GetLogicalAndExpression(stk, value);
+
+    while (TestToken(stk, TOK_OR))
+    {
+        Token tok = NextToken(stk);
+
+        TreeNode *next_val = NodeNew();
+        GetLogicalAndExpression(stk, next_val);
 
         TreeNodeCtor(value, TREE_NODE_TYPE_OP,
-                     {.op = OP_TYPE_XOR},
+                     {.op = OP_TYPE_OR},
                      value, next_val);
     }
 }
 
-
-void GetAndExpression(Stack *stk, TreeNode *value)
+void GetLogicalAndExpression(Stack *stk, TreeNode *value)
 {
     GetEqualExpression(stk, value);
 
     while (TestToken(stk, TOK_AND))
     {
-        NextToken(stk);
+        Token tok = NextToken(stk);
 
         TreeNode *next_val = NodeNew();
         GetEqualExpression(stk, next_val);
@@ -106,24 +143,120 @@ void GetRelativeExpression(Stack *stk, TreeNode *value)
     }
 }
 
+void GetAdditiveExpression(Stack *stk, TreeNode *value)
+{
+    GetMultiplicativeExpression(stk, value);
+
+    while (TestToken(stk, TOK_PLUS) || TestToken(stk, TOK_MINUS))
+    {
+        Token tok = NextToken(stk);
+
+        TreeNode *next_val = NodeNew();
+        GetMultiplicativeExpression(stk, next_val);
+
+        switch (tok.id)
+        {
+            case TOK_PLUS:
+                TreeNodeCtor(value, TREE_NODE_TYPE_OP,
+                             {.op = OP_TYPE_ADD},
+                             value, next_val);
+                break;
+            case TOK_MINUS:
+                TreeNodeCtor(value, TREE_NODE_TYPE_OP,
+                             {.op = OP_TYPE_SUB},
+                             value, next_val);
+                break;
+        }
+    }
+}
+
+void GetMultiplicativeExpression(Stack *stk, TreeNode *value)
+{
+    GetUnaryExpression(stk, value);
+
+    while (TestToken(stk, TOK_MUL) || TestToken(stk, TOK_DIV) || TestToken(stk, TOK_PRCNT))
+    {
+        Token tok = NextToken(stk);
+
+        TreeNode *next_val = NodeNew();
+        GetUnaryExpression(stk, next_val);
+
+        switch (tok.id)
+        {
+            case TOK_MUL:
+                TreeNodeCtor(value, TREE_NODE_TYPE_OP,
+                             {.op = OP_TYPE_MUL},
+                             value, next_val);
+                break;
+            case TOK_DIV:
+                TreeNodeCtor(value, TREE_NODE_TYPE_OP,
+                             {.op = OP_TYPE_DIV},
+                             value, next_val);
+                break;
+            case TOK_PRCNT:
+                TreeNodeCtor(value, TREE_NODE_TYPE_OP,
+                             {.op = OP_TYPE_PRCNT},
+                             value, next_val);
+                break;
+        }
+    }
+}
+
+void GetUnaryExpression(Stack *stk, TreeNode *value)
+{
+    if (TestToken(stk, TOK_MINUS))
+    {
+        NextToken(stk);
+
+        TreeNode *res = TreeNodeNew();
+        GetUnaryExpression(stk, res);
+
+        OP_CTOR(value, OP_TYPE_MUL, CREATE_NUM(-1), res);
+    }
+    else if (TestToken(stk, TOK_PLUS))
+    {
+        NextToken(stk);
+        GetUnaryExpression(skt, value);
+    }
+    else if (TestToken(stk, TOK_DEN))
+    {
+        NextToken(stk);
+        
+        TreeNode *res = TreeNodeNew();
+        GetUnaryExpression(stk, res);
+
+        OP_CTOR(value, OP_TYPE_DEN, NULL, res);
+    }
+    else
+    {
+        GetFunctionExpression(stk, value);
+    }
+}
+
 void GetFunctionExpression(Stack *stk, TreeNode *value)
 {
-    Token func_tok = NextToken(stk);
-    char *name = strdup(func_tok.val.name);
-    TokenDtor(&func_tok);
+    GetPrimaryExpression(stk, value);
 
-    AssertToken(stk, NULL, TOK_L_RND_BR);
+    if (TestToken(stk, TOK_L_RND_BR))
+    {
+        NextToken(stk);
 
-    TreeNode *args = TreeNodeNew();
-    GetListExpressions(stk, args);
-    TreeNodeCtor(value, TREE_NODE_TYPE_CALL, NULL, args);
+        char *name = strdup(value.value.var);
 
-    AssertToken(stk, NULL, TOK_R_RND_BR);
+        TreeNode *args = TreeNodeNew();
+        GetListExpressions(stk, args);
+        TreeNodeCtor(value, TREE_NODE_TYPE_CALL, 
+                     {.var = NULL},
+                     CreateTreeNode(TREE_NODE_TYPE_FUNC, {.var = name}, NULL, NULL),
+                     args);
+
+        AssertToken(stk, NULL, TOK_R_RND_BR);
+    }
 }
 
 void GetListExpressions(Stack *stk, TreeNode *value)
 {
-    GetExpression(stk, value);
+    GetAssignExpression(stk, value);
 
     if (TestToken(stk, TOK_COMMA))
     {
@@ -141,9 +274,13 @@ void GetListExpressions(Stack *stk, TreeNode *value)
 void GetPrimaryExpression(Stack *stk, TreeNode *value)
 {
     if (TestToken(stk, TOK_TYPE_IDENT))
+    {
         GetIdent(stk, value);
+    }
     else if (TestToken(stk, TOK_TYPE_CONST))
-        GetConst(stk, value);
+    {
+        GetNumber(stk, value);
+    }
     else if (TestToken(stk, TOK_L_RND_BR))
     {
         NextToken(stk);
@@ -152,223 +289,23 @@ void GetPrimaryExpression(Stack *stk, TreeNode *value)
     }
 }
 
-void GetUnaryExpression(Stack *stk, TreeNode *value)
+void GetIdent(Stack *stk, TreeNode *value)
 {
-    if (TestToken(stk, TOK_MINUS))
-    {
-        NextToken(stk);
+    Token tok = NextToken(stk);
+    TreeNodeCtor(value, TREE_NODE_TYPE_VAR,
+                 {.var = strdup(tok.val.name)},
+                 NULL, NULL);
 
-        TreeNode *res = TreeNodeNew();
-        GetExpression(stk, res);
-
-        value = MUL(CREATE_NUM(-1), res);
-    }
-    else if (TestToken(stk, TOK_PLUS))
-    {
-        NextToken(stk);
-        GetExpression(skt, value);
-    }
-    else if (TestToken(stk, TOK_DEN))
-    {
-        NextToken(stk);
-        
-        TreeNode *res = TreeNodeNew();
-        GetExpression(stk, res);
-
-        OP_CTOR(value, OP_TYPE_DEN, NULL, res);
-    }
+    TokenDtor(&tok);
 }
 
-// const char *GetGeneral(const char *str, TreeNode *value)
-// {
-//     str = GetExpression(str, value);
-// 
-//     assert(*str == '\0');
-//     ++str;
-// 
-//     return str;
-// }
-// 
-// const char *GetExpression(const char *str, TreeNode *value)
-// {
-//     TreeNode *top_node = TreeNodeNew();
-//     str = GetProduct(str, top_node);
-// 
-//     while (*str == '+' || *str == '-')
-//     {
-//         char op = *str;
-//         ++str;
-// 
-//         TreeNode *buf_val = TreeNodeNew();
-//         str = GetProduct(str, buf_val);
-// 
-//         switch (op)
-//         {
-//             case '+':
-//                 top_node = ADD(top_node, buf_val);
-//                 break;
-//             case '-':
-//                 top_node = SUB(top_node, buf_val);
-//                 break;
-//             default:
-//                 assert(0 && "Syntax error\n");
-//         }
-//     }
-// 
-//     *value = *top_node;
-//     free(top_node);
-// 
-//     return str;
-// }
-// 
-// const char *GetProduct(const char *str, TreeNode *value)
-// {
-//     TreeNode *top_node = TreeNodeNew();
-//     str = GetPower(str, top_node);
-// 
-//     while (*str == '*' || *str == '/')
-//     {
-//         char op = *str;
-//         ++str;
-// 
-//         TreeNode *buf_val = TreeNodeNew();
-//         str = GetPower(str, buf_val);
-// 
-//         switch (op)
-//         {
-//             case '*':
-//                 top_node = MUL(top_node, buf_val);
-//                 break;
-//             case '/':
-//                 top_node = DIV(top_node, buf_val);
-//                 break;
-//             default:
-//                 assert(0 && "Syntax error\n");
-//         }
-//     }
-// 
-//     *value = *top_node;
-//     free(top_node);
-// 
-//     return str;
-// }
-// 
-// const char *GetPower(const char *str, TreeNode *value)
-// {
-//     TreeNode *top_node = TreeNodeNew();
-//     str = GetPrimary(str, top_node);
-// 
-//     while (*str == '^')
-//     {
-//         TreeNode *buf_val = TreeNodeNew();
-// 
-//         ++str;
-//         str = GetPrimary(str, buf_val);
-// 
-//         top_node = EXP(top_node, buf_val);
-//     }
-// 
-//     *value = *top_node;
-//     free(top_node);
-// 
-//     return str;
-// }
-// 
-// void GetPrimary(Stack *stk, TreeNode *value)
-// {
-//     if (TestToken(stk, TOK_L_RND_BR))
-//     {
-//         NextToken(stk);
-//         GetExpression(stk, value);
-//         AssertToken(stk, NULL, R_FIG_BR);
-//     }
-//     else if (TestToken(stk, TOK_NUM))
-//     {
-//         GetNumber(stk, value);
-//     }
-//     else if (TestToken(stk, TOK_NAME))
-//     {
-//         Token tok = NextToken(stk);
-//         if (TestToken(stk, TOK_L_RND_BR))
-//         {
-//             StackPush(stk, &tok);
-//             GetFunction(stk, value);
-//         }
-//         else
-//         {
-//             
-//         }
-//     }
-//     else
-//     {
-//         assert(0 && "GetPrimary parsing error\n");
-//     }
-// }
-// 
-// void GetNumber(Stack *stk, TreeNode *value)
-// {
-//     Token tok = {};
-//     TokenCtor(&tok);
-// 
-//     AssertToken(stk, &tok, TOK_NUM);
-// 
-//     NUM_CTOR(value, tok.val.num);
-// 
-//     TokenDtor(&tok);
-// 
-//     return str;
-// }
-// 
-// void GetVariable(Stack *stk, TreeNode *value)
-// {
-//     Token tok = {};
-//     TokenCtor(&tok);
-// 
-//     AssertToken(stk, TOK_NAME, &tok);
-// 
-//     TreeNodeCtor(value,
-//                  TREE_NODE_TYPE_VAR,
-//                  {.var = strdup(tok.val.name)},
-//                  NULL, NULL);
-// 
-//     TokenDtor(&tok);
-// 
-//     return str;
-// }
-// 
-// void GetFunction(Stack *stk, TreeNode *value)
-// {
-//     int32_t op = 0;
-// 
-//     if (strncmp(str, "sin", 3) == 0)
-//     {
-//         op = OP_SIN;
-//         str += 3;
-//     }
-//     else if (strncmp(str, "cos", 3) == 0)
-//     {
-//         op = OP_COS;
-//         str += 3;
-//     }
-//     else if (strncmp(str, "ln", 2) == 0)
-//     {
-//         op = OP_LN;
-//         str += 2;
-//     }
-//     else
-//         assert(0 && "Wrong function");
-// 
-//     assert(*str == '(');
-//     ++str;
-// 
-//     TreeNode *arg = TreeNodeNew();
-//     str = GetExpression(str, arg);
-// 
-//     assert(*str == ')');
-//     ++str;
-// 
-//     OP_CTOR(value, op, NULL, arg);
-// 
-//     return str;
-// }
+void GetNumber(Stack *stk, TreeNode *value)
+{
+    Token tok = NextToken(stk);
+    TreeNodeCtor(value, TREE_NODE_TYPE_NUM,
+                {.dbl = tok.val.num},
+                NULL, NULL);
+
+    TokenDtor(&tok);
+}
 
