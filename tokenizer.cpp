@@ -23,7 +23,7 @@ void TokenEmpty(Token *tok)
     *tok = 
     {
         .id   = 0,
-        .type = TOK_TYPE_NAME,
+        .type = TOK_TYPE_IDENT,
         .val  = 
         {
             .name =  NULL
@@ -33,7 +33,7 @@ void TokenEmpty(Token *tok)
 
 void TokenDtor(Token *tok)
 {
-    if (tok->type == TOK_TYPE_NAME)
+    if (tok->type != TOK_TYPE_CONST)
         free(tok->val.name);
 
     TokenEmpty(tok);

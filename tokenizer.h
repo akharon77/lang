@@ -54,7 +54,7 @@ Token       NextToken     (Stack *stk);
 
 const char *strCmp        (const char *str, const char *tok, Token *val);
 const char *numCmp        (const char *str, Token *val);
-const char *nameCmp       (const char *str, Token *val);
+const char *identCmp      (const char *str, Token *val);
 
 #endif  // TOKENIZER_H
 
