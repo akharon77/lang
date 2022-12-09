@@ -43,11 +43,11 @@ void        TokenCtor     (Token *tok);
 void        TokenDtor     (Token *tok);
 void        TokenEmpty    (Token *tok);
 
-void        Tokenize      (const char *str, Stack *stk);
+void        Tokenize      (Stack *stk, const char *str);
 
-const char *strTokCmp     (const char *str, const char *tok, TokenValue *val);
-const char *numTok        (const char *str, TokenValue *val);
-const char *nameTok       (const char *str, TokenValue *val);
+const char *strTokCmp     (const char *str, const char *tok, Token *val);
+const char *numTok        (const char *str, Token *val);
+const char *nameTok       (const char *str, Token *val);
 
 #endif  // TOKENIZER_H
 

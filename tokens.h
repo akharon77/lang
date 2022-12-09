@@ -6,6 +6,8 @@ TOKEN(MINUS,    STR_TOK, "-")
 TOKEN(MUL,      STR_TOK, "*")
 TOKEN(DIV,      STR_TOK, "/")
 
+TOKEN(EXP,      STR_TOK, "^")
+
 TOKEN(ASS,      STR_TOK, "=")
 TOKEN(NVAR,     STR_TOK, "var")
 

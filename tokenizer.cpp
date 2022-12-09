@@ -44,57 +44,72 @@ void TokenDtor(Token *tok)
     Token res_tok = {};                                 \
     TokenCtor(&res_tok);                                \
                                                         \
-    const char *res = FUNC(str, STR, &res_tok.val);     \
+    const char *res = FUNC(str, STR, &res_tok);         \
+    bool flag = res != str;                             \
     if (res != str)                                     \
     {                                                   \
+        res_tok.id = TOK_##NAME;                        \
         StackPush(stk, &res_tok);                       \
         str = res;                                      \
+        continue;                                       \
     }                                                   \
-                                                        \
-    TokenDtor(&res_tok);                                \
 }
 
-void Tokenize(const char *str, Stack *stk)
+void Tokenize(Stack *stk, const char *str)
 {
     while (*str != '\0')
     {
+        if (isspace(*str))
+        {
+            ++str;
+            continue;
+        }
+
         #include "tokens.h"
     }
 }
 #undef TOKEN
 
-const char *strTokCmp(const char *str, const char *tok, TokenValue *val)
+const char *strTokCmp(const char *str, const char *tok, Token *val)
 {
     int tok_len = strlen(tok);
 
     if (strncasecmp(str, tok, tok_len) == 0)
     {
-        *val = {.name = strdup(tok)};
+        val->type = TOK_TYPE_NAME;
+        val->val  = {.name = strdup(tok)};
+
         return str + tok_len;
     }
+
+    return str;
 }
 
-const char *numTok(const char *str, TokenValue *val)
+const char *numTok(const char *str, Token *val)
 {
     double  res    = 0;
     int32_t offset = 0;
 
-    if (sscanf(str, "%g%n", &res, &offset))
+    if (sscanf(str, "%lf%n", &res, &offset))
     {
-        *val = {.num = res};
+        val->type = TOK_TYPE_NUM;
+        val->val  = {.num = res};
+
         return str + offset;
     }
+
+    return str;
 }
 
-const char *nameTok(const char *str, TokenValue *val)
+const char *nameTok(const char *str, Token *val)
 {
     const char *str_old = str;
-    char res[256] = "";
 
-    while (!ispunct(*str))
+    while (*str != '\0' && !ispunct(*str) && !isspace(*str))
         ++str;
 
-    *val = {.name = strndup(str_old, str - str_old)};
+    val->type = TOK_TYPE_NAME;
+    val->val  = {.name = strndup(str_old, str - str_old)};
 
     return str;
 }
