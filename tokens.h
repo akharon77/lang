@@ -1,27 +1,22 @@
-TOKEN(NUM,      NUM_TOK, "")
+TOKEN(NUM,      CONST,   NUM_CMP, "")
 
-TOKEN(PLUS,     STR_TOK, "+")
-TOKEN(MINUS,    STR_TOK, "-")
+TOKEN(PLUS,     OP,      STR_CMP, "+")
+TOKEN(MINUS,    OP,      STR_CMP, "-")
+TOKEN(MUL,      OP,      STR_CMP, "*")
+TOKEN(DIV,      OP,      STR_CMP, "/")
+TOKEN(EXP,      OP,      STR_CMP, "^")
+TOKEN(ASS,      OP,      STR_CMP, "=")
 
-TOKEN(MUL,      STR_TOK, "*")
-TOKEN(DIV,      STR_TOK, "/")
+TOKEN(NVAR,     KEYWORD, STR_CMP, "var")
+TOKEN(IF,       KEYWORD, STR_CMP, "if")
+TOKEN(WHILE,    KEYWORD, STR_CMP, "while")
 
-TOKEN(EXP,      STR_TOK, "^")
+TOKEN(L_FIG_BR, DELIM,   STR_CMP, "{")
+TOKEN(R_FIG_BR, DELIM,   STR_CMP, "}")
+TOKEN(L_RND_BR, DELIM,   STR_CMP, "(")
+TOKEN(R_RND_BR, DELIM,   STR_CMP, ")")
+TOKEN(COMMA,    DELIM,   STR_CMP, ",")
+TOKEN(DELIM,    DELIM,   STR_CMP, ";")
 
-TOKEN(ASS,      STR_TOK, "=")
-TOKEN(NVAR,     STR_TOK, "var")
-
-TOKEN(IF,       STR_TOK, "if")
-TOKEN(WHILE,    STR_TOK, "while")
-
-TOKEN(L_FIG_BR, STR_TOK, "{")
-TOKEN(R_FIG_BR, STR_TOK, "}")
-
-TOKEN(L_RND_BR, STR_TOK, "(")
-TOKEN(R_RND_BR, STR_TOK, ")")
-
-TOKEN(COMMA,    STR_TOK, ",")
-TOKEN(DELIM,    STR_TOK, ";")
-
-TOKEN(NAME,     NAME_TOK, "")
+TOKEN(NAME,     IDENT,   IDENT_CMP, "")
 

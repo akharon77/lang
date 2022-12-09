@@ -3,16 +3,19 @@
 
 #include "stack.h"
 
-#define STR_TOK(STR, TOK, VAL)  strTokCmp (STR, TOK, VAL)
-#define NAME_TOK(STR, TOK, VAL) nameTok   (STR, VAL)
-#define NUM_TOK(STR, TOK, VAL)  numTok    (STR, VAL)
+#define STR_CMP(STR, TOK, VAL)   strCmp   (STR, TOK, VAL)
+#define IDENT_CMP(STR, TOK, VAL) identCmp (STR, VAL)
+#define NUM_CMP(STR, TOK, VAL)   numCmp   (STR, VAL)
 
-#define TOKEN(NAME, tr1, tr2) TOK_##NAME,
+#define TOKEN(NAME, tr0, tr1, tr2) TOK_##NAME,
 
 enum TOKENS_TYPES
 {
-    TOK_TYPE_NUM,
-    TOK_TYPE_NAME,
+    TOK_TYPE_CONST,
+    TOK_TYPE_OP,
+    TOK_TYPE_KEYWORD,
+    TOK_TYPE_DELIM,
+    TOK_TYPE_IDENT,
     N_TOKENS_TYPES
 };
 
@@ -33,6 +36,7 @@ struct Token
 {
     int32_t    id;
     int32_t    type;
+
     TokenValue val;
 };
 
@@ -45,9 +49,12 @@ void        TokenEmpty    (Token *tok);
 
 void        Tokenize      (Stack *stk, const char *str);
 
-const char *strTokCmp     (const char *str, const char *tok, Token *val);
-const char *numTok        (const char *str, Token *val);
-const char *nameTok       (const char *str, Token *val);
+bool        TestToken     (Stack *stk, int32_t id);
+Token       NextToken     (Stack *stk);
+
+const char *strCmp        (const char *str, const char *tok, Token *val);
+const char *numCmp        (const char *str, Token *val);
+const char *nameCmp       (const char *str, Token *val);
 
 #endif  // TOKENIZER_H
 

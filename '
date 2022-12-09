@@ -39,90 +39,73 @@ void TokenDtor(Token *tok)
     TokenEmpty(tok);
 }
 
-#define TOKEN(NAME, TYPE, FUNC, STR)                    \
+#define TOKEN(NAME, FUNC, STR)                          \
 {                                                       \
     Token res_tok = {};                                 \
     TokenCtor(&res_tok);                                \
                                                         \
     const char *res = FUNC(str, STR, &res_tok);         \
-    if (res != str)                                     \
+    bool flag = res != str;                             \
+    if (flag)                                           \
     {                                                   \
         res_tok.id = TOK_##NAME;                        \
-        res_tok.type = TOK_TYPE_##TYPE;                 \
         StackPush(stk, &res_tok);                       \
         str = res;                                      \
-        continue;                                       \
     }                                                   \
+                                                        \
+    TokenDtor(&res_tok);                                \
+                                                        \
+    if (flag)                                           \
+        continue;                                       \
 }
 
 void Tokenize(Stack *stk, const char *str)
 {
     while (*str != '\0')
     {
-        if (isspace(*str))
-        {
-            ++str;
-            continue;
-        }
-
         #include "tokens.h"
     }
 }
 #undef TOKEN
 
-bool TestToken(Stack *stk, int32_t id)
-{
-    Token tok = {};
-    StackTop(stk, &tok);
-
-    bool res = tok.id == id;
-
-    return res; 
-}
-
-Token NextToken(Stack *stk)
-{
-    Token tok = {};
-    StackPop(stk, &tok);
-
-    return tok;
-}
-
-const char *strCmp(const char *str, const char *tok, Token *val)
+const char *strTokCmp(const char *str, const char *tok, Token *val)
 {
     int tok_len = strlen(tok);
 
     if (strncasecmp(str, tok, tok_len) == 0)
     {
+        val->type = TOK_TYPE_NAME;
         val->val  = {.name = strdup(tok)};
+
         return str + tok_len;
     }
 
     return str;
 }
 
-const char *numCmp(const char *str, Token *val)
+const char *numTok(const char *str, Token *val)
 {
     double  res    = 0;
     int32_t offset = 0;
 
-    if (sscanf(str, "%lf%n", &res, &offset))
+    if (sscanf(str, "%g%n", &res, &offset))
     {
-        val->val  = {.num = res};
+        *val = {.num = res};
         return str + offset;
     }
 
     return str;
 }
 
-const char *identCmp(const char *str, Token *val)
+const char *nameTok(const char *str, TokenValue *val)
 {
     const char *str_old = str;
+    char res[256] = "";
 
-    while (*str != '\0' && !ispunct(*str) && !isspace(*str))
+    while (!ispunct(*str))
         ++str;
 
-    val->val  = {.name = strndup(str_old, str - str_old)};
+    *val = {.name = strndup(str_old, str - str_old + 1)};
 
     return str;
 }
