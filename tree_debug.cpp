@@ -111,13 +111,13 @@ const char *GetOperatorString(int32_t op_code)
         case OP_TYPE_ASS:
             return "{ASS | =}";
         case OP_TYPE_LES:
-            return "{LES | <}";
+            return "{LES | \\<}";
         case OP_TYPE_LEQ:
-            return "{LEQ | <=}";
+            return "{LEQ | \\<=}";
         case OP_TYPE_GER:
-            return "{GER | >}";
+            return "{GER | \\>}";
         case OP_TYPE_GEQ:
-            return "{GEQ | >=}";
+            return "{GEQ | \\>=}";
         case OP_TYPE_EQ:
             return "{EQ | ==}";
         case OP_TYPE_NEQ:
