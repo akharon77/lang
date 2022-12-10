@@ -12,7 +12,7 @@ void GetExpression(Stack *stk, TreeNode *value)
 
     GetAssignExpression(stk, top_node);
 
-    if (TestToken(stk, TOK_COMMA))
+    while (TestToken(stk, TOK_COMMA))
     {
         NextToken(stk);
 
