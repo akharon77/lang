@@ -7,8 +7,6 @@
 #define IDENT_CMP(STR, TOK, VAL) identCmp (STR, VAL)
 #define NUM_CMP(STR, TOK, VAL)   numCmp   (STR, VAL)
 
-#define TOKEN(NAME, tr0, tr1, tr2) TOK_##NAME,
-
 enum TOKENS_TYPES
 {
     TOK_TYPE_CONST,
@@ -18,6 +16,8 @@ enum TOKENS_TYPES
     TOK_TYPE_IDENT,
     N_TOKENS_TYPES
 };
+
+#define TOKEN(NAME, tr0, tr1, tr2) TOK_##NAME,
 
 enum TOKENS
 {

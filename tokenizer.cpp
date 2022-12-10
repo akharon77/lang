@@ -49,7 +49,7 @@ void TokenDtor(Token *tok)
     {                                                   \
         res_tok.id = TOK_##NAME;                        \
         res_tok.type = TOK_TYPE_##TYPE;                 \
-        StackPush(stk, &res_tok);                       \
+        StackPush(&buf_stk, &res_tok);                  \
         str = res;                                      \
         continue;                                       \
     }                                                   \
@@ -57,6 +57,9 @@ void TokenDtor(Token *tok)
 
 void Tokenize(Stack *stk, const char *str)
 {
+    Stack buf_stk = {};
+    StackCtor(&buf_stk, 0, sizeof(Token));
+
     while (*str != '\0')
     {
         if (isspace(*str))
@@ -67,17 +70,27 @@ void Tokenize(Stack *stk, const char *str)
 
         #include "tokens.h"
     }
+
+    while (buf_stk.size > 0)
+    {
+        Token tok = {};
+        StackPop(&buf_stk, &tok);
+        StackPush(stk, &tok);
+    }
+
+    StackDtor(&buf_stk);
 }
 #undef TOKEN
 
 bool TestToken(Stack *stk, int32_t id)
 {
+    if (stk->size == 0)
+        return false;
+
     Token tok = {};
     StackTop(stk, &tok);
 
-    bool res = tok.id == id;
-
-    return res; 
+    return tok.id == id; 
 }
 
 Token NextToken(Stack *stk)

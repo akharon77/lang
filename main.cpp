@@ -2,6 +2,8 @@
 
 #include "tokenizer.h"
 #include "stack.h"
+#include "parser.h"
+#include "tree_debug.h"
 
 int main(int argc, const char *argv[])
 {
@@ -9,6 +11,7 @@ int main(int argc, const char *argv[])
     TokenizerCtor(&stk);
 
     Tokenize(&stk, argv[1]);
+
     for (int32_t i = 0; i < stk.size; ++i)
     {
         Token tok = {};
@@ -20,6 +23,11 @@ int main(int argc, const char *argv[])
         else
             printf("val = %s\n", tok.val.name);
     }
+
+    TreeNode *expr = TreeNodeNew();
+    GetExpression(&stk, expr);
+
+    TreeDump(expr, "test");
 
     return 0;
 }

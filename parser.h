@@ -2,14 +2,26 @@
 #define PARSER_H
 
 #include "tree.h"
+#include "tokenizer.h"
+#include "stack.h"
 
-const char *GetGeneral    (const char *str, TreeNode *value);
-const char *GetExpression (const char *str, TreeNode *value);
-const char *GetProduct    (const char *str, TreeNode *value);
-const char *GetPower      (const char *str, TreeNode *value);
-const char *GetPrimary    (const char *str, TreeNode *value);
-const char *GetNumber     (const char *str, TreeNode *value);
-const char *GetVariable   (const char *str, TreeNode *value);
-const char *GetFunction   (const char *str, TreeNode *value);
+void GetExpression               (Stack *stk, TreeNode *value);
+void GetAssignExpression         (Stack *stk, TreeNode *value);
+void GetLogicalExpression        (Stack *stk, TreeNode *value);
+void GetLogicalOrExpression      (Stack *stk, TreeNode *value);
+void GetLogicalAndExpression     (Stack *stk, TreeNode *value);
+void GetEqualExpression          (Stack *stk, TreeNode *value);
+void GetRelativeExpression       (Stack *stk, TreeNode *value);
+void GetAdditiveExpression       (Stack *stk, TreeNode *value);
+void GetMultiplicativeExpression (Stack *stk, TreeNode *value);
+void GetUnaryExpression          (Stack *stk, TreeNode *value);
+void GetFunctionExpression       (Stack *stk, TreeNode *value);
+void GetListExpressions          (Stack *stk, TreeNode *value);
+void GetPrimaryExpression        (Stack *stk, TreeNode *value);
+void GetIdent                    (Stack *stk, TreeNode *value);
+void GetNumber                   (Stack *stk, TreeNode *value);
+
+void AssertToken                 (Stack *stk, Token *tok, int32_t tok_id);
 
 #endif  // PARSER_H
+

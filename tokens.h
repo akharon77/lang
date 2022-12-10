@@ -1,8 +1,6 @@
-TOKEN(NUM,      CONST,   NUM_CMP, "")
-
 TOKEN(PLUS,     OP,      STR_CMP, "+")
 TOKEN(MINUS,    OP,      STR_CMP, "-")
-TOKEN(DEN,      OP,      STR_CMP, "~")
+TOKEN(NOT,      OP,      STR_CMP, "!")
 TOKEN(MUL,      OP,      STR_CMP, "*")
 TOKEN(DIV,      OP,      STR_CMP, "/")
 TOKEN(EXP,      OP,      STR_CMP, "^")
@@ -31,7 +29,8 @@ TOKEN(R_FIG_BR, DELIM,   STR_CMP, "}")
 TOKEN(L_RND_BR, DELIM,   STR_CMP, "(")
 TOKEN(R_RND_BR, DELIM,   STR_CMP, ")")
 TOKEN(COMMA,    DELIM,   STR_CMP, ",")
-TOKEN(DELIM,    DELIM,   STR_CMP, ";")
+TOKEN(COMDOT,   DELIM,   STR_CMP, ";")
 
-TOKEN(NAME,     IDENT,   IDENT_CMP, "")
+TOKEN(CONST,    CONST,   NUM_CMP, "")
+TOKEN(IDENT,    IDENT,   IDENT_CMP, "")
 

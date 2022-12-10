@@ -4,7 +4,7 @@
 
 #include "stack_debug.h"
 #include "tree.h"
-#include "diffr.h"
+#include "dsl.h"
 
 #define CURR node
 
@@ -65,13 +65,9 @@ void   TreeNodeCtor(TreeNode *node, int32_t type, TreeNodeValue value, TreeNode 
         {
             .type  = type,
             .value = value,
-            .size  = TreeNodeGetSize(left) + TreeNodeGetSize(right) + 1,
             .left  = left,
             .right = right 
         };
-
-    if (type == NODE_TYPE_VAR)
-        node->size = 1;
 }
 
 TreeNode *CreateTreeNode(int32_t type, TreeNodeValue val, TreeNode *left, TreeNode *right)
@@ -91,26 +87,5 @@ bool CompareTree(TreeNode *left, TreeNode *right)
         return false;
 
     return IS_EQ_NODE(left, right) && CompareTree(left->left, right->left) && CompareTree(left->right, right->right);
-}
-
-TreeNode *GetMaxSubtree(TreeNode *node)
-{
-    if (node->left->size > node->right->size)
-        return node->left;
-
-    return node->right;
-}
-
-int TreeNodeGetSize(TreeNode *node)
-{
-    if (node)
-        return node->size;
-    
-    return 0;
-}
-
-void TreeNodeUpdSize(TreeNode *node)
-{
-    node->size = TreeNodeGetSize(node->left) + TreeNodeGetSize(node->right) + 1;
 }
 

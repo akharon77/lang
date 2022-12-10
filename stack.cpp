@@ -34,8 +34,8 @@ void StackPush(Stack *stk, void *val)
 void StackGet(Stack *stk, int32_t ind, void *val)
 {
     ASSERT(!isBadPtr(stk));
-    ASSERT(!isBadPtr(val));
     ASSERT(StackGetSize(stk) > 0);
+    ASSERT(!isBadPtr(val));
     ASSERT(-1 < ind && ind < stk->size);
     
     memcpy(val, (void*) ((char*) stk->data + stk->elem_size * ind), stk->elem_size);
@@ -52,8 +52,8 @@ void StackTop(Stack *stk, void *val)
 
 void StackPop(Stack *stk, void *val)
 {
-    ASSERT(!isBadPtr(stk));
     ASSERT(!isBadPtr(val));
+    ASSERT(!isBadPtr(stk));
     ASSERT(StackGetSize(stk) > 0);
     
     StackTop(stk, val);
