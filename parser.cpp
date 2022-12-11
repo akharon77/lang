@@ -6,6 +6,56 @@
 #include "tree.h"
 #include "dsl.h"
 
+void GetStatement(Stack *stk, TreeNode *value)
+{
+    if (TestToken(stk, TOK_IF))
+        GetIfStatement(stk, value);
+    else if (TestToken(stk, TOK_L_FIG_BR))
+        GetBlockStatement(stk, value);
+    else
+        GetExpressionStatement(stk, value);
+}
+
+void GetBlockStatement(Stack *stk, TreeNode *value)
+{
+
+}
+
+void GetIfStatement(Stack *stk, TreeNode *value)
+{
+    AssertToken(stk, NULL, TOK_IF);
+    AssertToken(stk, NULL, TOK_L_RND_BR);
+
+    TreeNode *expr = TreeNodeNew();
+    GetExpression(stk, expr);
+
+    AssertToken(stk, NULL, TOK_R_RND_BR);
+
+    TreeNode *true_stmnt = TreeNodeNew();
+    GetStatement(stk, true_stmnt);
+
+    TreeNode *branch = CreateTreeNode(TREE_NODE_TYPE_BRANCH, {.var = NULL},
+                                      true_stmnt, NULL);
+    
+    if (TestToken(stk, TOK_ELSE))
+    {
+        NextToken(stk);
+        
+        branch->right = TreeNodeNew();
+        GetStatement(stk, branch->right);
+    }
+
+    TreeNodeCtor(value, TREE_NODE_TYPE_IF,
+                 {.var = NULL},
+                 expr, branch);
+}
+
+void GetExpressionStatement(Stack *stk, TreeNode *value)
+{
+    GetExpression(stk, value);
+    AssertToken(stk, NULL, TOK_COMDOT);
+}
+
 void GetExpression(Stack *stk, TreeNode *value)
 {
     TreeNode *top_node = TreeNodeNew();

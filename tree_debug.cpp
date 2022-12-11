@@ -61,15 +61,8 @@ void TreeDumpToFile(TreeNode *node, int32_t fd, int64_t idx)
         case TREE_NODE_TYPE_NUM:
             sprintf(value, "%ld", GET_NUM(CURR));
             break;
-        case TREE_NODE_TYPE_NVAR:
-        case TREE_NODE_TYPE_VAR:
-        case TREE_NODE_TYPE_NFUN:
-        case TREE_NODE_TYPE_FUNC:
-        case TREE_NODE_TYPE_PAR:
+        default:
             sprintf(value, "%s", GET_VAR(CURR));
-            break;
-        defalut:
-            sprintf(value, "(NULL)");
     }
 
     dprintf(fd, "node%ld[shape=record, label=\" { %s | %s } \"];\n",

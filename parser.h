@@ -5,6 +5,10 @@
 #include "tokenizer.h"
 #include "stack.h"
 
+void GetStatement                (Stack *stk, TreeNode *value);
+void GetBlockStatement           (Stack *stk, TreeNode *value);
+void GetIfStatement              (Stack *stk, TreeNode *value);
+void GetExpressionStatement      (Stack *stk, TreeNode *value);
 void GetExpression               (Stack *stk, TreeNode *value);
 void GetAssignExpression         (Stack *stk, TreeNode *value);
 void GetLogicalExpression        (Stack *stk, TreeNode *value);
