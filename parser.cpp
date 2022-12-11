@@ -12,13 +12,50 @@ void GetStatement(Stack *stk, TreeNode *value)
         GetIfStatement(stk, value);
     else if (TestToken(stk, TOK_L_FIG_BR))
         GetBlockStatement(stk, value);
+    else if (TestToken(stk, TOK_WHILE))
+        GetWhileStatement(stk, value);
     else
         GetExpressionStatement(stk, value);
 }
 
+void GetWhileStatement(Stack *stk, TreeNode *value)
+{
+    AssertToken(stk, NULL, TOK_WHILE);
+    AssertToken(stk, NULL, TOK_L_RND_BR);
+
+    TreeNode *expr = TreeNodeNew();
+    GetExpression(stk, expr);
+
+    AssertToken(stk, NULL, TOK_R_RND_BR);
+
+    TreeNode *stmnt = TreeNodeNew();
+    GetStatement(stk, stmnt);
+
+    TreeNodeCtor(value, TREE_NODE_TYPE_WHILE,
+                 {.var = NULL},
+                 expr, stmnt);
+}
+
 void GetBlockStatement(Stack *stk, TreeNode *value)
 {
+    AssertToken(stk, NULL, TOK_L_FIG_BR);
 
+    TreeNode *top_node = TreeNodeNew();
+    GetStatement(stk, top_node);
+
+    while (!TestToken(stk, TOK_R_FIG_BR))
+    {
+        TreeNode *next_stmnt = TreeNodeNew();
+        GetStatement(stk, next_stmnt);
+
+        top_node = CreateTreeNode(TREE_NODE_TYPE_SEQ, {.var = NULL},
+                                  top_node, next_stmnt);
+    }
+
+    AssertToken(stk, NULL, TOK_R_FIG_BR);
+
+    *value = *top_node;
+    free(top_node);
 }
 
 void GetIfStatement(Stack *stk, TreeNode *value)
