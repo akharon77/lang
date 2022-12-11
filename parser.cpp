@@ -6,6 +6,27 @@
 #include "tree.h"
 #include "dsl.h"
 
+void GetStatementsList(Stack *stk, TreeNode *value)
+{
+    TreeNode *top_node = TreeNodeNew();
+
+    GetStatement(stk, top_node);
+
+    while (stk->size > 0)
+    {
+        TreeNode *next_stmnt = TreeNodeNew();
+
+        GetStatement(stk, next_stmnt);
+
+        top_node = CreateTreeNode(TREE_NODE_TYPE_DEFS,
+                                  {.var = NULL},
+                                  top_node, next_stmnt);
+    }
+
+    *value = *top_node;
+    free(top_node);
+}
+
 void GetStatement(Stack *stk, TreeNode *value)
 {
     if (TestToken(stk, TOK_IF))
@@ -14,8 +35,42 @@ void GetStatement(Stack *stk, TreeNode *value)
         GetBlockStatement(stk, value);
     else if (TestToken(stk, TOK_WHILE))
         GetWhileStatement(stk, value);
+    else if (TestToken(stk, TOK_NFUN))
+        GetFunctionStatement(stk, value);
     else
         GetExpressionStatement(stk, value);
+}
+
+void GetFunctionStatement(Stack *stk, TreeNode *value)
+{
+    AssertToken(stk, NULL, TOK_NFUN);
+
+    Token name = NextToken(stk);
+
+    AssertToken(stk, NULL, TOK_L_RND_BR);
+
+    TreeNode *pars = TreeNodeNew();
+
+    if (TestToken(stk, TOK_R_RND_BR))
+    {
+        free(pars);
+        pars = NULL;
+    }
+    else
+    {
+        GetParamList(stk, pars);
+    }
+
+    AssertToken(stk, NULL, TOK_R_RND_BR);
+
+    TreeNode *body = TreeNodeNew();
+    GetBlockStatement(stk, body);
+
+    TreeNodeCtor(value, TREE_NODE_TYPE_NFUN,
+                 {.var = strdup(name.val.name)},
+                 pars, body);
+
+    TokenDtor(&name);
 }
 
 void GetWhileStatement(Stack *stk, TreeNode *value)
@@ -427,6 +482,34 @@ void GetListExpressions(Stack *stk, TreeNode *value)
         top_node = CreateTreeNode(TREE_NODE_TYPE_ARG,
                                   {.var = NULL},
                                   top_node, NULL);
+    }
+
+    *value = *top_node;
+    free(top_node);
+}
+
+void GetParamList(Stack *stk, TreeNode *value)
+{
+    TreeNode *top_node = TreeNodeNew();
+
+    GetIdent(stk, top_node);
+
+    if (TestToken(stk, TOK_COMMA))
+    {
+        NextToken(stk);
+
+        TreeNode *next_par = TreeNodeNew();
+        GetParamList(stk, next_par);
+
+        top_node = CreateTreeNode(TREE_NODE_TYPE_PAR,
+                                  {.var = top_node->value.var},
+                                  NULL, next_par);
+    }
+    else
+    {
+        top_node = CreateTreeNode(TREE_NODE_TYPE_PAR,
+                                  {.var = top_node->value.var},
+                                  NULL, NULL);
     }
 
     *value = *top_node;

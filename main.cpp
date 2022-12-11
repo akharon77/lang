@@ -25,7 +25,7 @@ int main(int argc, const char *argv[])
     }
 
     TreeNode *expr = TreeNodeNew();
-    GetStatement(&stk, expr);
+    GetStatementsList(&stk, expr);
 
     TreeDump(expr, "test");
 

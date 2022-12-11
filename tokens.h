@@ -23,6 +23,7 @@ TOKEN(NVAR,     KEYWORD, STR_CMP, "var")
 TOKEN(IF,       KEYWORD, STR_CMP, "if")
 TOKEN(ELSE,     KEYWORD, STR_CMP, "else")
 TOKEN(WHILE,    KEYWORD, STR_CMP, "while")
+TOKEN(NFUN,     KEYWORD, STR_CMP, "fun ")
 
 TOKEN(ASS,      OP,      STR_CMP, "=")
 

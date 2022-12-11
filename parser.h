@@ -5,7 +5,9 @@
 #include "tokenizer.h"
 #include "stack.h"
 
+void GetStatementsList           (Stack *stk, TreeNode *value);
 void GetStatement                (Stack *stk, TreeNode *value);
+void GetFunctionStatement        (Stack *stk, TreeNode *value);
 void GetWhileStatement           (Stack *stk, TreeNode *value);
 void GetBlockStatement           (Stack *stk, TreeNode *value);
 void GetIfStatement              (Stack *stk, TreeNode *value);
@@ -22,6 +24,7 @@ void GetMultiplicativeExpression (Stack *stk, TreeNode *value);
 void GetUnaryExpression          (Stack *stk, TreeNode *value);
 void GetFunctionExpression       (Stack *stk, TreeNode *value);
 void GetListExpressions          (Stack *stk, TreeNode *value);
+void GetParamList                (Stack *stk, TreeNode *value);
 void GetPrimaryExpression        (Stack *stk, TreeNode *value);
 void GetIdent                    (Stack *stk, TreeNode *value);
 void GetNumber                   (Stack *stk, TreeNode *value);
