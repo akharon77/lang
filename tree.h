@@ -4,26 +4,13 @@
 #include <stdint.h>
 #include "tree_struct.h"
 
+#define TYPE(name, str, cmd) OP_TYPE_##name,
 enum OP_TYPES
 {
-    OP_TYPE_ADD,
-    OP_TYPE_SUB,
-    OP_TYPE_MUL,
-    OP_TYPE_DIV,
-    OP_TYPE_AND,
-    OP_TYPE_OR,
-    OP_TYPE_NOT,
-    OP_TYPE_ASS,
-    OP_TYPE_LES,
-    OP_TYPE_LEQ,
-    OP_TYPE_GER,
-    OP_TYPE_GEQ,
-    OP_TYPE_EQ,
-    OP_TYPE_EXP,
-    OP_TYPE_NEQ,
-    OP_TYPE_MOD,
+    #include "op_types.h"
     N_OP_TYPES
 };
+#undef TYPE
 
 #define TYPE(name) TREE_NODE_TYPE_##name,
 enum TREE_NODE_TYPES

@@ -38,7 +38,7 @@ void GetStatement(Stack *stk, TreeNode *value)
     else if (TestToken(stk, TOK_NFUN))
         GetFunctionStatement(stk, value);
     else
-        GetExpressionStatement(stk, value);
+        GetAssignStatement(stk, value);
 }
 
 void GetFunctionStatement(Stack *stk, TreeNode *value)
@@ -142,54 +142,25 @@ void GetIfStatement(Stack *stk, TreeNode *value)
                  expr, branch);
 }
 
-void GetExpressionStatement(Stack *stk, TreeNode *value)
+void GetAssignStatement(Stack *stk, TreeNode *value)
 {
-    GetExpression(stk, value);
+    Token name = NextToken(stk);
+
+    AssertToken(stk, NULL, TOK_ASS);
+
+    TreeNode *expr = TreeNodeNew();
+    GetExpression(stk, expr);
+
+    TreeNodeCtor(value, TREE_NODE_TYPE_ASS,
+                 {.var = name.val.name},
+                 NULL, expr);
+
     AssertToken(stk, NULL, TOK_COMDOT);
 }
 
 void GetExpression(Stack *stk, TreeNode *value)
 {
-    TreeNode *top_node = TreeNodeNew();
-
-    GetAssignExpression(stk, top_node);
-
-    while (TestToken(stk, TOK_COMMA))
-    {
-        NextToken(stk);
-
-        TreeNode *next_val = TreeNodeNew();
-        GetAssignExpression(stk, next_val);
-
-        top_node = CreateTreeNode(TREE_NODE_TYPE_DEFS,
-                       {.var = NULL},
-                       top_node, next_val);
-    }
-
-    *value = *top_node;
-    free(top_node);
-}
-
-void GetAssignExpression(Stack *stk, TreeNode *value)
-{
-    TreeNode *top_node = TreeNodeNew();
-
-    GetLogicalExpression(stk, top_node);
-    
-    if (TestToken(stk, TOK_ASS))
-    {
-        NextToken(stk);
-
-        TreeNode *next_val = TreeNodeNew();
-        GetAssignExpression(stk, next_val);
-
-        top_node = CreateTreeNode(TREE_NODE_TYPE_OP,
-                       {.op = OP_TYPE_ASS},
-                       top_node, next_val);
-    }
-
-    *value = *top_node;
-    free(top_node);
+    GetLogicalExpression(stk, value);
 }
 
 void GetLogicalExpression(Stack *stk, TreeNode *value)
@@ -452,8 +423,8 @@ void GetFunctionExpression(Stack *stk, TreeNode *value)
         TreeNode *args = TreeNodeNew();
         GetListExpressions(stk, args);
         TreeNodeCtor(value, TREE_NODE_TYPE_CALL,
-                            {.var = NULL},
-                            CreateTreeNode(TREE_NODE_TYPE_FUNC, {.var = name}, NULL, NULL),
+                            {.var = name},
+                            NULL,
                             args);
 
         AssertToken(stk, NULL, TOK_R_RND_BR);
@@ -464,14 +435,14 @@ void GetListExpressions(Stack *stk, TreeNode *value)
 {
     TreeNode *top_node = TreeNodeNew();
 
-    GetAssignExpression(stk, top_node);
+    GetExpression(stk, top_node);
 
     if (TestToken(stk, TOK_COMMA))
     {
         NextToken(stk);
 
         TreeNode *next_arg = TreeNodeNew();
-        GetListExpressions(stk, next_arg);
+        GetExpression(stk, next_arg);
 
         top_node = CreateTreeNode(TREE_NODE_TYPE_ARG,
                                   {.var = NULL},

@@ -41,6 +41,11 @@ void StackGet(Stack *stk, int32_t ind, void *val)
     memcpy(val, (void*) ((char*) stk->data + stk->elem_size * ind), stk->elem_size);
 }
 
+void *StackGet(Stack *stk, int32_t ind)
+{
+    return (void*) ((char*) stk->data + stk->elem_size * ind);
+}
+
 void StackTop(Stack *stk, void *val)
 {
     ASSERT(!isBadPtr(stk));

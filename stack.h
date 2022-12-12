@@ -17,6 +17,7 @@ void        StackDtor             (Stack *stk);
 
 void        StackPush             (Stack *stk, void *val);
 
+void       *StackGet              (Stack *stk, int32_t ind);
 void        StackGet              (Stack *stk, int32_t ind, void *val);
 void        StackTop              (Stack *stk, void *val);
 void        StackPop              (Stack *stk, void *val);

@@ -85,40 +85,15 @@ const char *GetOperatorString(int32_t op_code)
 {
     switch (op_code)
     {
-        case OP_TYPE_ADD:
-            return "{ADD | +}";
-        case OP_TYPE_SUB:
-            return "{SUB | -}";
-        case OP_TYPE_MUL:
-            return "{MUL | *}";
-        case OP_TYPE_DIV:
-            return "{DIV | /}";
-        case OP_TYPE_EXP:
-            return "{EXP | ^}";
-        case OP_TYPE_AND:
-            return "{AND | and}";
-        case OP_TYPE_OR:
-            return "{OR | or}";
-        case OP_TYPE_NOT:
-            return "{NOT | !}";
-        case OP_TYPE_ASS:
-            return "{ASS | =}";
-        case OP_TYPE_LES:
-            return "{LES | \\<}";
-        case OP_TYPE_LEQ:
-            return "{LEQ | \\<=}";
-        case OP_TYPE_GER:
-            return "{GER | \\>}";
-        case OP_TYPE_GEQ:
-            return "{GEQ | \\>=}";
-        case OP_TYPE_EQ:
-            return "{EQ | ==}";
-        case OP_TYPE_NEQ:
-            return "{NEQ | !=}";
-        case OP_TYPE_MOD:
-            return "{MOD | %}";
+        #define TYPE(name, str, cmd)            \
+            case OP_TYPE_##name:                \
+                return "{" #name " | " str "}";
+
+        #include "op_types.h"
+
         default:
             return "(NULL)";
+        #undef TYPE
     }
 }
 
