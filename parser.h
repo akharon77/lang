@@ -7,6 +7,8 @@
 
 void GetStatementsList           (Stack *stk, TreeNode *value);
 void GetStatement                (Stack *stk, TreeNode *value);
+void GetNewVarStatement          (Stack *stk, TreeNode *value);
+void GetReturnStatement          (Stack *stk, TreeNode *value);
 void GetFunctionStatement        (Stack *stk, TreeNode *value);
 void GetWhileStatement           (Stack *stk, TreeNode *value);
 void GetBlockStatement           (Stack *stk, TreeNode *value);

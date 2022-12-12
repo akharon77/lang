@@ -37,8 +37,46 @@ void GetStatement(Stack *stk, TreeNode *value)
         GetWhileStatement(stk, value);
     else if (TestToken(stk, TOK_NFUN))
         GetFunctionStatement(stk, value);
+    else if (TestToken(stk, TOK_RET))
+        GetReturnStatement(stk, value);
+    else if (TestToken(stk, TOK_NVAR))
+        GetNewVarStatement(stk, value);
     else
         GetAssignStatement(stk, value);
+}
+
+void GetNewVarStatement(Stack *stk, TreeNode *value)
+{
+    AssertToken(stk, NULL, TOK_NVAR);
+
+    Token name = NextToken(stk);
+    TreeNode *expr = CREATE_NUM(0);
+
+    if (TestToken(stk, TOK_ASS))
+    {
+        NextToken(stk);
+        GetExpression(stk, expr);
+    }
+
+    TreeNodeCtor(value, TREE_NODE_TYPE_NVAR,
+                 {.var = name.val.name},
+                 NULL, expr);
+
+    AssertToken(stk, NULL, TOK_COMDOT);
+}
+
+void GetReturnStatement(Stack *stk, TreeNode *value)
+{
+    AssertToken(stk, NULL, TOK_RET);
+
+    TreeNode *expr = TreeNodeNew();
+    GetExpression(stk, expr);
+
+    TreeNodeCtor(value, TREE_NODE_TYPE_RET,
+                 {.var = NULL},
+                 NULL, expr);
+
+    AssertToken(stk, NULL, TOK_COMDOT);
 }
 
 void GetFunctionStatement(Stack *stk, TreeNode *value)
