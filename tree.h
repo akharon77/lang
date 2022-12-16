@@ -33,7 +33,7 @@ bool      TreeNodeIsLeaf   (TreeNode *node);
 void      TreeNodeAddChild (TreeNode *node, TreeNode *child);
 TreeNode *GetMaxSubtree    (TreeNode *node);
 
-bool CompareTree(TreeNode *left, TreeNode *right);
-bool NodeIsLeaf(TreeNode *node);
+bool      CompareTree      (TreeNode *left, TreeNode *right);
+bool      NodeIsLeaf       (TreeNode *node);
 #endif  // TREE_H
 

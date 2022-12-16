@@ -17,10 +17,11 @@ void        StackDtor             (Stack *stk);
 
 void        StackPush             (Stack *stk, void *val);
 
-void       *StackGet              (Stack *stk, int32_t ind);
-void        StackGet              (Stack *stk, int32_t ind, void *val);
+void       *StackGetPtr           (Stack *stk, int64_t ind);
+void        StackGet              (Stack *stk, int64_t ind, void *val);
 void        StackTop              (Stack *stk, void *val);
 void        StackPop              (Stack *stk, void *val);
+void        StackPop              (Stack *stk);
 
 void        StackResize           (Stack *stk, int64_t size);
 void        StackRealloc          (Stack *stk, int64_t capacity);

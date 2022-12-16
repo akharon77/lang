@@ -3,6 +3,7 @@
 #include "tokenizer.h"
 #include "stack.h"
 #include "parser.h"
+#include "compiler.h"
 #include "tree_debug.h"
 
 int main(int argc, const char *argv[])
@@ -24,10 +25,17 @@ int main(int argc, const char *argv[])
             printf("val = %s\n", tok.val.name);
     }
 
-    TreeNode *expr = TreeNodeNew();
-    GetStatementsList(&stk, expr);
+    TreeNode *stmnt = TreeNodeNew();
+    GetStatementsList(&stk, stmnt);
 
-    TreeDump(expr, "test");
+    TreeDump(stmnt, "test");
+
+    CompilerInfo info = {};
+    StackCtor(&info.fun_table, 0, sizeof(FunctionInfo));
+    StackCtor(&info.name_table.stk, 0, sizeof(LocalVar));
+    info.if_cnt = info.loop_cnt = 0;
+
+    Compile(stmnt, &info, 1);
 
     return 0;
 }

@@ -39,12 +39,12 @@ void TokenDtor(Token *tok)
     TokenEmpty(tok);
 }
 
-#define TOKEN(NAME, TYPE, FUNC, STR)                    \
+#define TOKEN(NAME, TYPE, CMP, STR, OP_CODE, CMD)       \
 {                                                       \
     Token res_tok = {};                                 \
     TokenCtor(&res_tok);                                \
                                                         \
-    const char *res = FUNC(str, STR, &res_tok);         \
+    const char *res = CMP(str, STR, &res_tok);          \
     if (res != str)                                     \
     {                                                   \
         res_tok.id = TOK_##NAME;                        \

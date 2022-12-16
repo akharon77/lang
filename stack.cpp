@@ -31,18 +31,22 @@ void StackPush(Stack *stk, void *val)
     memcpy((void*) ((char*) stk->data + stk->elem_size * (stk->size - 1)), val, stk->elem_size);
 }
 
-void StackGet(Stack *stk, int32_t ind, void *val)
+void StackGet(Stack *stk, int64_t ind, void *val)
 {
     ASSERT(!isBadPtr(stk));
     ASSERT(StackGetSize(stk) > 0);
     ASSERT(!isBadPtr(val));
     ASSERT(-1 < ind && ind < stk->size);
     
-    memcpy(val, (void*) ((char*) stk->data + stk->elem_size * ind), stk->elem_size);
+    memcpy(val, StackGetPtr(stk, ind), stk->elem_size);
 }
 
-void *StackGet(Stack *stk, int32_t ind)
+void *StackGetPtr(Stack *stk, int64_t ind)
 {
+    ASSERT(!isBadPtr(stk));
+    ASSERT(StackGetSize(stk) > 0);
+    ASSERT(-1 < ind && ind < stk->size);
+
     return (void*) ((char*) stk->data + stk->elem_size * ind);
 }
 
@@ -62,6 +66,13 @@ void StackPop(Stack *stk, void *val)
     ASSERT(StackGetSize(stk) > 0);
     
     StackTop(stk, val);
+    StackPop(stk);
+}
+
+void StackPop(Stack *stk)
+{
+    ASSERT(!isBadPtr(stk));
+    ASSERT(StackGetSize(stk) > 0);
     
     int64_t prevSize = stk->size;
     StackResize(stk, stk->size - 1);

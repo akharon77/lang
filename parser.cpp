@@ -9,13 +9,11 @@
 void GetStatementsList(Stack *stk, TreeNode *value)
 {
     TreeNode *top_node = TreeNodeNew();
-
     GetStatement(stk, top_node);
 
     while (stk->size > 0)
     {
         TreeNode *next_stmnt = TreeNodeNew();
-
         GetStatement(stk, next_stmnt);
 
         top_node = CreateTreeNode(TREE_NODE_TYPE_DEFS,
@@ -82,9 +80,7 @@ void GetReturnStatement(Stack *stk, TreeNode *value)
 void GetFunctionStatement(Stack *stk, TreeNode *value)
 {
     AssertToken(stk, NULL, TOK_NFUN);
-
     Token name = NextToken(stk);
-
     AssertToken(stk, NULL, TOK_L_RND_BR);
 
     TreeNode *pars = TreeNodeNew();
@@ -133,7 +129,12 @@ void GetBlockStatement(Stack *stk, TreeNode *value)
 {
     AssertToken(stk, NULL, TOK_L_FIG_BR);
 
-    TreeNode *top_node = TreeNodeNew();
+    TreeNodeCtor(value, TREE_NODE_TYPE_BLOCK,
+                 {.var = NULL},
+                 NULL,
+                 TreeNodeNew());
+
+    TreeNode *top_node = value->right;
     GetStatement(stk, top_node);
 
     while (!TestToken(stk, TOK_R_FIG_BR))
@@ -141,14 +142,12 @@ void GetBlockStatement(Stack *stk, TreeNode *value)
         TreeNode *next_stmnt = TreeNodeNew();
         GetStatement(stk, next_stmnt);
 
-        top_node = CreateTreeNode(TREE_NODE_TYPE_SEQ, {.var = NULL},
-                                  top_node, next_stmnt);
+        value->right = CreateTreeNode(TREE_NODE_TYPE_SEQ,
+                                      {.var = NULL},
+                                      value->right, next_stmnt);
     }
 
     AssertToken(stk, NULL, TOK_R_FIG_BR);
-
-    *value = *top_node;
-    free(top_node);
 }
 
 void GetIfStatement(Stack *stk, TreeNode *value)
@@ -220,9 +219,9 @@ void GetLogicalExpression(Stack *stk, TreeNode *value)
         GetLogicalExpression(stk, false_expr);
 
         top_node = CreateTreeNode(TREE_NODE_TYPE_CALL,
-                       {.var = NULL},
-                       CreateTreeNode(TREE_NODE_TYPE_FUNC, {.var = strdup("ternary")}, NULL, NULL),
-                    ARG(value, ARG(true_expr, ARG(false_expr, NULL))));
+                                  {.var = strdup("ternary")},
+                                  NULL, 
+                                  ARG(value, ARG(true_expr, ARG(false_expr, NULL))));
     }
 
     *value = *top_node;

@@ -1,16 +1,5 @@
-TYPE (ADD, "+",  "add")
-TYPE (SUB, "-",  "sub")
-TYPE (MUL, "*",  "mul")
-TYPE (DIV, "/",  "div")
-TYPE (AND, "&&", "call and")
-TYPE (OR,  "||", "call or")
-TYPE (NOT, "~",  "call not")
-TYPE (LES, "<",  "call les")
-TYPE (LEQ, "<=", "call leq")
-TYPE (GER, ">",  "call ger")
-TYPE (GEQ, ">=", "call geq")
-TYPE (EQ,  "==", "call eq")
-TYPE (EXP, "^",  "call exp")
-TYPE (NEQ, "!=", "call eq")
-TYPE (MOD, "%",  "call mod")
+#define TOKEN(name, type, cmp, str, op_code, cmd) TYPE (op_code, str, cmd)
+
+#include "tokens.h"
+#undef TOKEN
 

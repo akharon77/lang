@@ -17,7 +17,7 @@ enum TOKENS_TYPES
     N_TOKENS_TYPES
 };
 
-#define TOKEN(NAME, tr0, tr1, tr2) TOK_##NAME,
+#define TOKEN(name, type, cmp, str, op_code, cmd) TOK_##name,
 
 enum TOKENS
 {

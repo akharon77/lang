@@ -65,18 +65,18 @@ void TreeDumpToFile(TreeNode *node, int32_t fd, int64_t idx)
             sprintf(value, "%s", GET_VAR(CURR));
     }
 
-    dprintf(fd, "node%ld[shape=record, label=\" { %s | %s } \"];\n",
-                idx, type_str, value);
+    dprintf(fd, "node%ld[shape=record, label=\" {%p | %s | %s | {<left> %p | <right> %p}} \"];\n",
+                idx, CURR, type_str, value, LEFT, RIGHT);
 
     if (LEFT)
     {
-        dprintf(fd, "node%ld->node%ld;", idx, 2 * idx + 1);
+        dprintf(fd, "node%ld:<left>->node%ld;", idx, 2 * idx + 1);
         TreeDumpToFile(LEFT,  fd, 2 * idx + 1);
     }
 
     if (RIGHT)
     {
-        dprintf(fd, "node%ld->node%ld;", idx, 2 * idx + 2);
+        dprintf(fd, "node%ld:<right>->node%ld;", idx, 2 * idx + 2);
         TreeDumpToFile(RIGHT, fd, 2 * idx + 2);
     }
 }
