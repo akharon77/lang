@@ -7,12 +7,6 @@
 
 const int32_t INF = 1e9;
 
-struct VarPtr
-{
-    int32_t ptr;
-    int32_t depth;
-};
-
 struct LocalVar
 {
     char  *name;
@@ -29,13 +23,14 @@ struct NameTable
 {
     Stack   stk;
     int32_t free_ptr;
-    int32_t depth;
+    int32_t size;
 };
 
 struct CompilerInfo
 {
     NameTable name_table;
     Stack     fun_table;
+    Stack     rbp;
 
     int32_t   if_cnt;
     int32_t   loop_cnt;

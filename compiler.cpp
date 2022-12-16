@@ -36,7 +36,7 @@ void COMPILE_NUM(TreeNode *node, CompilerInfo *info, int32_t fd)
 
 void COMPILE_VAR(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
-    dprintf(fd, "push [%d]\n", GetVarPointer(&info->name_table, GET_VAR(CURR)));
+    dprintf(fd, "push [%d+rbp]\n", GetVarPointer(&info->name_table, GET_VAR(CURR)));
 }
 
 void COMPILE_OP(TreeNode *node, CompilerInfo *info, int32_t fd)
@@ -60,12 +60,12 @@ void COMPILE_NVAR(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
     int32_t ptr = AddLocalVar(&info->name_table, GET_VAR(node));
     Compile(RIGHT, info, fd);
-    dprintf(fd, "pop [%d]\n", ptr);
+    dprintf(fd, "pop [%d+rbp]\n", ptr);
 }
 
 void COMPILE_NFUN(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
-    dprintf(fd, ".%s:\n", GET_VAR(node));
+    dprintf(fd, "%s:\n", GET_VAR(node));
 
     FunctionInfo func = 
         {
@@ -73,13 +73,11 @@ void COMPILE_NFUN(TreeNode *node, CompilerInfo *info, int32_t fd)
             .arg_cnt = 0
         };
 
-    MakeNamespace(&info->name_table);
-
     TreeNode *par = LEFT;
     while (par != NULL)
     {
         int32_t ptr = AddLocalVar(&info->name_table, GET_VAR(par));
-        dprintf(fd, "pop [%d]\n", ptr);
+        dprintf(fd, "pop [%d+rbp]\n", ptr);
 
         ++func.arg_cnt;
         par = par->right;
@@ -88,8 +86,6 @@ void COMPILE_NFUN(TreeNode *node, CompilerInfo *info, int32_t fd)
     StackPush(&info->fun_table, (void*) &func);
 
     Compile(RIGHT->right, info, fd);
-
-    CloseNamespace(&info->name_table);
 }
 
 void COMPILE_RET(TreeNode *node, CompilerInfo *info, int32_t fd)
@@ -115,7 +111,7 @@ void COMPILE_ASS(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
     int32_t ptr = GetVarPointer(&info->name_table, GET_VAR(CURR));
     Compile(RIGHT, info, fd);
-    dprintf(fd, "pop [%d]\n", ptr);
+    dprintf(fd, "pop [%d+rbp]\n", ptr);
 }
 
 void COMPILE_IF(TreeNode *node, CompilerInfo *info, int32_t fd)
@@ -123,41 +119,52 @@ void COMPILE_IF(TreeNode *node, CompilerInfo *info, int32_t fd)
     Compile(LEFT, info, fd);
 
     dprintf(fd, "pop rax\n"
-               "cmp rax 0\n"
-               "ja  .if%d\n"
-               "jmp .else%d\n"
-               ".if%d:\n", 
-               info->if_cnt, info->if_cnt, info->if_cnt);
+                "cmp rax 0\n"
+                "ja  if%d\n"
+                "jmp else%d\n"
+                "if%d:\n", 
+                info->if_cnt, info->if_cnt, info->if_cnt);
     Compile(RIGHT->left, info, fd);
 
-    dprintf(fd, "jmp .end_if%d\n"
-                ".else%d:\n",
+    dprintf(fd, "jmp end_if%d\n"
+                "else%d:\n",
                 info->if_cnt, info->if_cnt);
     Compile(RIGHT->right, info, fd);
 
-    dprintf(fd, ".end_if%d:\n", info->if_cnt);
+    dprintf(fd, "end_if%d:\n", info->if_cnt);
     ++info->if_cnt;
 }
 
 void COMPILE_WHILE(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
-    dprintf(fd, ".loop%d:\n", info->loop_cnt);
+    dprintf(fd, "loop%d:\n", info->loop_cnt);
 
     Compile(LEFT, info, fd);
     dprintf(fd, "pop rax\n"
                 "cmp rax 0\n"
-                "jbe .end_loop%d\n", info->loop_cnt);
+                "jbe end_loop%d\n", info->loop_cnt);
     Compile(RIGHT, info, fd);
 
-    dprintf(fd, "jmp .loop%d\n"
-                ".end_loop%d\n", info->loop_cnt, info->loop_cnt);
+    dprintf(fd, "jmp loop%d\n"
+                "end_loop%d\n", info->loop_cnt, info->loop_cnt);
     ++info->loop_cnt;
 }
 
 void COMPILE_CALL(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
     Compile(RIGHT, info, fd);
-    dprintf(fd, "call .%s\n", GET_VAR(CURR));
+    dprintf(fd, "push rbp\n"
+                "push %d\n"
+                "add\n"
+                "pop rbp\n" 
+                "call %s\n"
+                "push rbp\n"
+                "push %d\n"
+                "sub\n"
+                "pop rbp\n",
+                info->name_table.free_ptr,
+                GET_VAR(CURR),
+                info->name_table.free_ptr);
 }
 
 void COMPILE_ARG(TreeNode *node, CompilerInfo *info, int32_t fd)
@@ -183,7 +190,7 @@ int32_t GetVarPointer(NameTable *name_table, const char *name)
         LocalVar *var = (LocalVar*) StackGetPtr(&name_table->stk, i);
 
         if (strcasecmp(var->name, name) == 0)
-            return ((VarPtr*) StackGetPtr(&var->mem, var->mem.size - 1))->ptr;
+            return *((int32_t*) StackGetPtr(&var->mem, var->mem.size - 1));
     }
 
     assert(0 && "No var\n");  // TODO: fix CE
@@ -197,13 +204,7 @@ int32_t AddLocalVar(NameTable *name_table, const char *name)
 
         if (strcasecmp(var->name, name) == 0)
         {
-            VarPtr new_var_ptr = 
-                {
-                    .ptr   = name_table->free_ptr,
-                    .depth = name_table->depth
-                };
-
-            StackPush(&var->mem, &new_var_ptr);
+            *((int32_t*) StackGetPtr(&var->mem, var->mem.size - 1)) = name_table->free_ptr;
             return name_table->free_ptr++;
         }
     }
@@ -214,15 +215,20 @@ int32_t AddLocalVar(NameTable *name_table, const char *name)
             .mem  = {}
         };
 
-    StackCtor(&new_local_var.mem, 1, sizeof(VarPtr));
+    StackCtor(&new_local_var.mem, 1, sizeof(int32_t));
+    StackPush(&new_local_var.mem, &name_table->free_ptr);
     StackPush(&name_table->stk, &new_local_var);
 
-    return AddLocalVar(name_table, name);
+    return name_table->free_ptr++;
 }
 
 void MakeNamespace(NameTable *name_table)
 {
-    ++name_table->depth;
+    for (int32_t i = 0; i < name_table->stk.size; ++i)
+    {
+        LocalVar *var = (LocalVar*) StackGetPtr(&name_table->stk, i);
+        StackPush(&var->mem, StackGetPtr(&var->mem, var->mem.size - 1));
+    }
 }
 
 void CloseNamespace(NameTable *name_table)
@@ -231,19 +237,18 @@ void CloseNamespace(NameTable *name_table)
     for (int32_t i = 0; i < name_table->stk.size; ++i)
     {
         LocalVar *var = (LocalVar*) StackGetPtr(&name_table->stk, i);
-        VarPtr   *var_ptr = (VarPtr*) StackGetPtr(&var->mem, var->mem.size - 1);
 
-        while (var_ptr->depth == name_table->depth)
+        if (var->mem.size > 0)
         {
-            if (var_ptr->ptr < min_free_ptr)
-                min_free_ptr = var_ptr->ptr;
+            int32_t  *var_ptr = (int32_t*) StackGetPtr(&var->mem, var->mem.size - 1);
+
+            if (*var_ptr < min_free_ptr)
+                min_free_ptr = *var_ptr;
 
             StackPop(&var->mem);
-            var_ptr = (VarPtr*) StackGetPtr(&var->mem, var->mem.size - 1);
         }
     }
 
-    --name_table->depth;
     name_table->free_ptr = min_free_ptr;
 }
 
