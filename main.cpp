@@ -5,13 +5,20 @@
 #include "parser.h"
 #include "compiler.h"
 #include "tree_debug.h"
+#include "iostr.h"
 
 int main(int argc, const char *argv[])
 {
+    int32_t err = 0;
+
     Stack stk = {};
     TokenizerCtor(&stk);
 
-    Tokenize(&stk, argv[1]);
+    TextInfo text = {};
+    TextInfoCtor(&text);
+    InputText(&text, argv[1], &err);
+
+    Tokenize(&stk, text.base);
 
     for (int32_t i = 0; i < stk.size; ++i)
     {
@@ -31,11 +38,32 @@ int main(int argc, const char *argv[])
     TreeDump(stmnt, "test");
 
     CompilerInfo info = {};
+
     StackCtor(&info.fun_table, 0, sizeof(FunctionInfo));
-    StackCtor(&info.name_table.stk, 0, sizeof(LocalVar));
+    FunctionInfo std_funcs[] = 
+        {
+            {"exp", 2},
+            {"mod", 2},
+            {"leq", 2},
+            {"geq", 2},
+            {"les", 2},
+            {"ger", 2},
+            {"eq",  2},
+            {"neq", 2},
+            {"not", 1},
+            {"or",  2},
+            {"and", 2},
+            {"out", 1}
+        };
+    for (int32_t i = 0; i < 11; ++i)
+        StackPush(&info.fun_table, (void*) &std_funcs[i]);
+
+    StackCtor(&info.name_table.stk, 0, sizeof(int32_t));
     info.if_cnt = info.loop_cnt = 0;
 
     Compile(stmnt, &info, 1);
+
+    TextInfoDtor(&text);
 
     return 0;
 }

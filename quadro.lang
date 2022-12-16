@@ -1,22 +1,39 @@
-fun main()
-{
-    var a = 1;
-    var b = -2;
-    var c = 1;
-    var x1 = 0;
-    var x2 = 0;
+var tr_            = 0;
+var ERROR_RET      = -1;
+var ZERO_SOLUTIONS = 0;
+var ONE_SOLUTION   = 1;
+var TWO_SOLUTIONS  = 2;
+var INF_SOLUTIONS  = 10000;
 
-    solveSquare(a, b, c, x1, x2);
-}
-
-fun solveSquare(a, b, c, x1, x2)
+fun solveLinear(a, b)
 {
-    x1 = 0;
-    x2 = 0;
+    var x = 0;
 
     if (a == 0)
     {
-        solveLinear(b, c, x1);
+        if (b == 0) 
+            tr_ = out(INF_SOLUTIONS);
+        else
+            tr_ = out(ZERO_SOLUTIONS);
+    }
+    else
+    {
+        x = -b * 100 / a / 100;
+        tr_ = out(ONE_SOLUTION);
+        tr_ = out(x);
+    }
+
+    ret ERROR_RET;
+}
+
+fun solveSquare(a, b, c)
+{
+    var x1 = 0;
+    var x2 = 0;
+
+    if (a == 0)
+    {
+        tr_ = solveLinear(b, c);
     }
     else
     {
@@ -24,125 +41,37 @@ fun solveSquare(a, b, c, x1, x2)
 
         if (D < 0)
         {
-            ret 0;
+            tr_ = out(ZERO_SOLUTIONS);
         }
-        else if (D > 0)
+        else 
         {
-            var sqrt_D = sqrt(D);
-            x1 = (-b - sqrt_D) / (2 * a);
-            x2 = (-b + sqrt_D) / (2 * a);
+            if (D > 0)
+            {
+                var sqrt_D = sqrt(D * 10000) / 100;
+                x1 = (-b - sqrt_D) * 100 / (2 * a) / 100;
+                x2 = (-b + sqrt_D) * 100 / (2 * a) / 100;
+                tr_ = out(TWO_SOLUTIONS);
+                tr_ = out(x1);
+                tr_ = out(x2);
+            }
+            else
+            {
+                x1 = -b * 100 / (2 * a) / 100;
+                tr_ = out(ONE_SOLUTION);
+                tr_ = out(x1);
+            }
         }
-        else
-        {
-            x1 = -b / (2 * a);
-        }
     }
 
-    ret -1;
+    ret ERROR_RET;
 }
 
-fun solveLinear(a, b, x)
+fun main()
 {
-    x = 0;
+    var a  = inp();
+    var b  = inp();
+    var c  = inp();
 
-    if (a == 0)
-    {
-        return zeroEqual(b) ? INF_SOLUTIONS : ZERO_SOLUTIONS;
-    }
-    else
-    {
-        *x = -b / a;
-        return ONE_SOLUTION;
-    }
-
-    return ERROR_RET;
-}
-
-bool clear_input()
-{
-    bool isSpace = true;
-    int temp = '\0';
-    do
-    {
-        temp = getchar();
-        if (temp != ' ' && temp != '\t' && temp != '\n')
-            isSpace = false;
-    }
-    while (temp != '\n' && temp != EOF);
-    return isSpace;
-}
-
-int sign(const double n)
-{
-    ASSERT(isfinite(n));
-
-    if (n < -EPS)
-        return -1;
-    else if (n > EPS)
-        return 1;
-    return 0;
-}
-
-bool equal(const double a, const double b)
-{
-    return a - EPS < b && b < a + EPS;
-}
-
-bool zeroEqual(const double n)
-{
-    return !sign(n);
-}
-
-int getMode(const int argc, const char *argv[])
-{
-    int retMode = ERROR_MODE;
-    if (argc == 1)
-        return RUN_MODE;
-    else
-        for (int i = 1; i < argc; ++i)
-            for (int j = 0; j < NMODES; ++j)
-                if (strcmp(MODES[j].strForm, argv[i]) == 0)
-                {
-                    if (retMode != ERROR_MODE)
-                        return ERROR_MODE;
-                    else
-                        retMode = MODES[j].modeID;
-                }
-    return retMode;
-}
-
-void input(double * const a, double * const b, double * const c)
-{
-    printf("Input coefficients of quadratic equation ax^2 + bx + c = 0\n");
-    while (true)
-    {
-        int nInput = scanf("%lf %lf %lf", a, b, c);
-        bool flag = clear_input();
-        if (nInput == 3 && flag)
-            break;
-        printf("Wrong input, try again\n");
-    }
-}
-
-void output(const int count, const double x1, const double x2)
-{
-    switch (count)
-    {
-        case ZERO_SOLUTIONS: 
-            printf("No solutions");
-            break;
-        case ONE_SOLUTION:
-            printf("One solution:\n\tX = %lf", x1);
-            break;
-        case TWO_SOLUTIONS:
-            printf("Two solutions\n\tX1 = %lf,\n\tX2 = %lf", x1, x2);
-            break;
-        case INF_SOLUTIONS:
-            printf("Any number");
-            break;
-        default:
-            printf("Error");
-    }
-    printf("\n");
+    tr_ = solveSquare(a, b, c);
 }
 

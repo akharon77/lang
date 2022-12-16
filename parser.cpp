@@ -134,8 +134,7 @@ void GetBlockStatement(Stack *stk, TreeNode *value)
                  NULL,
                  TreeNodeNew());
 
-    TreeNode *top_node = value->right;
-    GetStatement(stk, top_node);
+    GetStatement(stk, value->right);
 
     while (!TestToken(stk, TOK_R_FIG_BR))
     {
@@ -456,9 +455,14 @@ void GetFunctionExpression(Stack *stk, TreeNode *value)
         NextToken(stk);
 
         char *name = strdup(value->value.var);
+        TreeNode *args = NULL;
 
-        TreeNode *args = TreeNodeNew();
-        GetListExpressions(stk, args);
+        if (!TestToken(stk, TOK_R_RND_BR))
+        {
+            args = TreeNodeNew();
+            GetListExpressions(stk, args);
+        }
+
         TreeNodeCtor(value, TREE_NODE_TYPE_CALL,
                             {.var = name},
                             NULL,
@@ -471,7 +475,6 @@ void GetFunctionExpression(Stack *stk, TreeNode *value)
 void GetListExpressions(Stack *stk, TreeNode *value)
 {
     TreeNode *top_node = TreeNodeNew();
-
     GetExpression(stk, top_node);
 
     if (TestToken(stk, TOK_COMMA))
@@ -479,7 +482,7 @@ void GetListExpressions(Stack *stk, TreeNode *value)
         NextToken(stk);
 
         TreeNode *next_arg = TreeNodeNew();
-        GetExpression(stk, next_arg);
+        GetListExpressions(stk, next_arg);
 
         top_node = CreateTreeNode(TREE_NODE_TYPE_ARG,
                                   {.var = NULL},
@@ -562,13 +565,13 @@ void GetNumber(Stack *stk, TreeNode *value)
     TokenDtor(&tok);
 }
 
-void AssertToken(Stack *stk, Token *tok, int32_t tok_id)
-{
-    Token buf_token = {};
-    if (tok == NULL)
-        tok = &buf_token;
-
-    StackPop(stk, tok);
-    assert(tok->id == tok_id);
-}
+// void AssertToken(Stack *stk, Token *tok, int32_t tok_id)
+// {
+//     Token buf_token = {};
+//     if (tok == NULL)
+//         tok = &buf_token;
+// 
+//     StackPop(stk, tok);
+//     assert(tok->id == tok_id);
+// }
 

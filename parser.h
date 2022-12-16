@@ -5,6 +5,27 @@
 #include "tokenizer.h"
 #include "stack.h"
 
+#define AssertToken(STK, TOK, TOK_ID)                                   \
+do                                                                      \
+{                                                                       \
+    Token *tok = TOK;                                                   \
+    Token buf_token = {};                                               \
+    if (tok == NULL)                                                    \
+        tok = &buf_token;                                               \
+                                                                        \
+    StackPop(STK, tok);                                                 \
+    if (tok->id != TOK_ID)                                              \
+        fprintf(stderr,                                                 \
+                "Token assertion failed. Expected " #TOK_ID "\n"        \
+                "Obtained %d\n"                                         \
+                "File: %s, line: %d\n"                                  \
+                "Function: %s\n",                                       \
+                tok->id,                                                \
+                __FILE__, __LINE__,                                     \
+                __PRETTY_FUNCTION__);                                   \
+}                                                                       \
+while (0)
+
 void GetStatementsList           (Stack *stk, TreeNode *value);
 void GetStatement                (Stack *stk, TreeNode *value);
 void GetNewVarStatement          (Stack *stk, TreeNode *value);
@@ -31,7 +52,7 @@ void GetPrimaryExpression        (Stack *stk, TreeNode *value);
 void GetIdent                    (Stack *stk, TreeNode *value);
 void GetNumber                   (Stack *stk, TreeNode *value);
 
-void AssertToken                 (Stack *stk, Token *tok, int32_t tok_id);
+// void AssertToken                 (Stack *stk, Token *tok, int32_t tok_id);
 
 #endif  // PARSER_H
 

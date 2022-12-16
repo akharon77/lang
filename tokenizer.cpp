@@ -116,10 +116,10 @@ const char *strCmp(const char *str, const char *tok, Token *val)
 
 const char *numCmp(const char *str, Token *val)
 {
-    double  res    = 0;
+    int64_t res    = 0;
     int32_t offset = 0;
 
-    if (sscanf(str, "%lf%n", &res, &offset))
+    if (sscanf(str, "%ld%n", &res, &offset))
     {
         val->val  = {.num = res};
         return str + offset;
@@ -132,7 +132,7 @@ const char *identCmp(const char *str, Token *val)
 {
     const char *str_old = str;
 
-    while (*str != '\0' && !ispunct(*str) && !isspace(*str))
+    while (*str != '\0' && (*str == '_' || !ispunct(*str)) && !isspace(*str))
         ++str;
 
     val->val  = {.name = strndup(str_old, str - str_old)};

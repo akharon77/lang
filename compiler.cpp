@@ -32,6 +32,10 @@ void COMPILE_DEFS(TreeNode *node, CompilerInfo *info, int32_t fd)
 void COMPILE_NUM(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
     dprintf(fd, "push %ld\n", GET_NUM(CURR));
+    // dprintf(fd, "push 100\n"
+    //             "push %ld\n"
+    //             "mul\n",
+    //             GET_NUM(CURR));
 }
 
 void COMPILE_VAR(TreeNode *node, CompilerInfo *info, int32_t fd)
@@ -86,6 +90,8 @@ void COMPILE_NFUN(TreeNode *node, CompilerInfo *info, int32_t fd)
     StackPush(&info->fun_table, (void*) &func);
 
     Compile(RIGHT->right, info, fd);
+    dprintf(fd, "push 0\n"
+                "ret");
 }
 
 void COMPILE_RET(TreeNode *node, CompilerInfo *info, int32_t fd)
@@ -118,36 +124,36 @@ void COMPILE_IF(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
     Compile(LEFT, info, fd);
 
+    int32_t id = info->if_cnt++;
     dprintf(fd, "pop rax\n"
                 "cmp rax 0\n"
                 "ja  if%d\n"
                 "jmp else%d\n"
                 "if%d:\n", 
-                info->if_cnt, info->if_cnt, info->if_cnt);
+                id, id, id);
     Compile(RIGHT->left, info, fd);
 
     dprintf(fd, "jmp end_if%d\n"
                 "else%d:\n",
-                info->if_cnt, info->if_cnt);
+                id, id);
     Compile(RIGHT->right, info, fd);
 
-    dprintf(fd, "end_if%d:\n", info->if_cnt);
-    ++info->if_cnt;
+    dprintf(fd, "end_if%d:\n", id);
 }
 
 void COMPILE_WHILE(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
-    dprintf(fd, "loop%d:\n", info->loop_cnt);
+    int32_t id = info->loop_cnt++;
+    dprintf(fd, "loop%d:\n", id);
 
     Compile(LEFT, info, fd);
     dprintf(fd, "pop rax\n"
                 "cmp rax 0\n"
-                "jbe end_loop%d\n", info->loop_cnt);
+                "jbe end_loop%d\n", id);
     Compile(RIGHT, info, fd);
 
     dprintf(fd, "jmp loop%d\n"
-                "end_loop%d\n", info->loop_cnt, info->loop_cnt);
-    ++info->loop_cnt;
+                "end_loop%d:\n", id, id);
 }
 
 void COMPILE_CALL(TreeNode *node, CompilerInfo *info, int32_t fd)
