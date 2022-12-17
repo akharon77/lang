@@ -5,7 +5,7 @@ fun sqrt(n)
     var i = 0;
     var tr_ = 0;
 
-    while (i < 10)
+    while (i < 100)
     {
         var mid = (left + right) / 2;
 
@@ -15,6 +15,10 @@ fun sqrt(n)
             right = mid;
          
         i = i + 1;
+        
+        tr_ = out(i);
+        tr_ = out(left);
+        tr_ = out(right);
     }
 
     ret left;
@@ -109,6 +113,9 @@ fun solveSquare(a, b, c)
             if (D > 0)
             {
                 var sqrt_D = sqrt(D);
+                tr_ = out(-b);
+                tr_ = out(sqrt_D);
+                tr_ = out(a);
                 x1 = (-b - sqrt_D) / (2 * a);
                 x2 = (-b + sqrt_D) / (2 * a);
                 tr_ = out(2);

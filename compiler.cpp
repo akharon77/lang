@@ -31,7 +31,7 @@ void COMPILE_DEFS(TreeNode *node, CompilerInfo *info, int32_t fd)
 
 void COMPILE_NUM(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
-    dprintf(fd, "push %ld\n", (int64_t) (GET_NUM(CURR) * 100));
+    dprintf(fd, "push %ld\n", (int64_t) (GET_NUM(CURR) * 1000));
     // dprintf(fd, "push 100\n"
     //             "push %ld\n"
     //             "mul\n",
