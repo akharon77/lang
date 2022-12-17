@@ -35,8 +35,6 @@ int main(int argc, const char *argv[])
     TreeNode *stmnt = TreeNodeNew();
     GetStatementsList(&stk, stmnt);
 
-    TreeDump(stmnt, "test");
-
     CompilerInfo info = {};
 
     StackCtor(&info.fun_table, 0, sizeof(FunctionInfo));
@@ -58,8 +56,11 @@ int main(int argc, const char *argv[])
     for (int32_t i = 0; i < 11; ++i)
         StackPush(&info.fun_table, (void*) &std_funcs[i]);
 
-    StackCtor(&info.name_table.stk, 0, sizeof(int32_t));
+    StackCtor(&info.namesp, 0, sizeof(NameTable));
     info.if_cnt = info.loop_cnt = 0;
+
+    PreCompileOp(stmnt);
+    TreeDump(stmnt, "test");
 
     Compile(stmnt, &info, 1);
 

@@ -1,35 +1,96 @@
-var tr_            = 0;
-var ERROR_RET      = -1;
-var ZERO_SOLUTIONS = 0;
-var ONE_SOLUTION   = 1;
-var TWO_SOLUTIONS  = 2;
-var INF_SOLUTIONS  = 10000;
+fun sqrt(n)
+{
+    var left = 0;
+    var right = n + 1;
+    var i = 0;
+    var tr_ = 0;
+
+    while (i < 10)
+    {
+        var mid = (left + right) / 2;
+
+        if (mid * mid <= n)
+            left = mid;
+        else
+            right = mid;
+         
+        i = i + 1;
+    }
+
+    ret left;
+}
+
+fun and(a, b)
+{
+    if (a == 0)
+        ret 0;
+    else
+    {
+        if (b == 0)
+            ret 0;
+        ret 1;
+    }
+}
+
+fun or(a, b)
+{
+    if (a > 0)
+        ret 1;
+    else
+    {
+        if (b > 0)
+            ret 1;
+        ret 0;
+    }
+}
+
+fun ger(a, b)
+{
+    ret b < a;
+}
+
+fun geq(a, b)
+{
+    ret !(a < b);
+}
+
+fun leq(a, b)
+{
+    ret a < b or a == b;
+}
+
+fun neq(a, b)
+{
+    ret !(a == b);
+}
 
 fun solveLinear(a, b)
 {
     var x = 0;
+    var tr_ = 0;
 
     if (a == 0)
     {
         if (b == 0) 
-            tr_ = out(INF_SOLUTIONS);
+            tr_ = out(1000);
         else
-            tr_ = out(ZERO_SOLUTIONS);
+            tr_ = out(0);
     }
     else
     {
-        x = -b * 100 / a / 100;
-        tr_ = out(ONE_SOLUTION);
+        x = -b / a;
+        tr_ = out(1);
         tr_ = out(x);
     }
 
-    ret ERROR_RET;
+    ret -1;
 }
 
 fun solveSquare(a, b, c)
 {
     var x1 = 0;
     var x2 = 0;
+    var tr_ = 0;
 
     if (a == 0)
     {
@@ -41,33 +102,34 @@ fun solveSquare(a, b, c)
 
         if (D < 0)
         {
-            tr_ = out(ZERO_SOLUTIONS);
+            tr_ = out(0);
         }
         else 
         {
             if (D > 0)
             {
-                var sqrt_D = sqrt(D * 10000) / 100;
-                x1 = (-b - sqrt_D) * 100 / (2 * a) / 100;
-                x2 = (-b + sqrt_D) * 100 / (2 * a) / 100;
-                tr_ = out(TWO_SOLUTIONS);
+                var sqrt_D = sqrt(D);
+                x1 = (-b - sqrt_D) / (2 * a);
+                x2 = (-b + sqrt_D) / (2 * a);
+                tr_ = out(2);
                 tr_ = out(x1);
                 tr_ = out(x2);
             }
             else
             {
-                x1 = -b * 100 / (2 * a) / 100;
-                tr_ = out(ONE_SOLUTION);
+                x1 = -b / (2 * a);
+                tr_ = out(1);
                 tr_ = out(x1);
             }
         }
     }
 
-    ret ERROR_RET;
+    ret -1;
 }
 
 fun main()
 {
+    var tr_ = 0;
     var a  = inp();
     var b  = inp();
     var c  = inp();

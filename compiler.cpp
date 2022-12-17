@@ -31,7 +31,7 @@ void COMPILE_DEFS(TreeNode *node, CompilerInfo *info, int32_t fd)
 
 void COMPILE_NUM(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
-    dprintf(fd, "push %ld\n", GET_NUM(CURR));
+    dprintf(fd, "push %ld\n", (int64_t) (GET_NUM(CURR) * 100));
     // dprintf(fd, "push 100\n"
     //             "push %ld\n"
     //             "mul\n",
@@ -40,7 +40,7 @@ void COMPILE_NUM(TreeNode *node, CompilerInfo *info, int32_t fd)
 
 void COMPILE_VAR(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
-    dprintf(fd, "push [%d+rbp]\n", GetVarPointer(&info->name_table, GET_VAR(CURR)));
+    dprintf(fd, "push [%d+rbp]\n", GetVarPointer(&info->namesp, GET_VAR(CURR)));
 }
 
 void COMPILE_OP(TreeNode *node, CompilerInfo *info, int32_t fd)
@@ -62,7 +62,7 @@ void COMPILE_OP(TreeNode *node, CompilerInfo *info, int32_t fd)
 
 void COMPILE_NVAR(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
-    int32_t ptr = AddLocalVar(&info->name_table, GET_VAR(node));
+    int32_t ptr = AddLocalVar(&info->namesp, GET_VAR(node));
     Compile(RIGHT, info, fd);
     dprintf(fd, "pop [%d+rbp]\n", ptr);
 }
@@ -77,21 +77,28 @@ void COMPILE_NFUN(TreeNode *node, CompilerInfo *info, int32_t fd)
             .arg_cnt = 0
         };
 
+    MakeNamespace(&info->namesp);
+
     TreeNode *par = LEFT;
     while (par != NULL)
     {
-        int32_t ptr = AddLocalVar(&info->name_table, GET_VAR(par));
-        dprintf(fd, "pop [%d+rbp]\n", ptr);
+        int32_t ptr = AddLocalVar(&info->namesp, GET_VAR(par));
+        // dprintf(fd, "pop [%d+rbp]\n", ptr);
 
         ++func.arg_cnt;
         par = par->right;
     }
 
+    for (int32_t i = 0; i < func.arg_cnt; ++i)
+        dprintf(fd, "pop [%d+rbp]\n", func.arg_cnt - i - 1);
+
     StackPush(&info->fun_table, (void*) &func);
 
-    Compile(RIGHT->right, info, fd);
+    Compile(RIGHT, info, fd);
     dprintf(fd, "push 0\n"
-                "ret");
+                "ret\n");
+    
+    CloseNamespace(&info->namesp);
 }
 
 void COMPILE_RET(TreeNode *node, CompilerInfo *info, int32_t fd)
@@ -102,9 +109,9 @@ void COMPILE_RET(TreeNode *node, CompilerInfo *info, int32_t fd)
 
 void COMPILE_BLOCK(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
-    MakeNamespace(&info->name_table);
+    RepeatNameTable(&info->namesp);
     Compile(RIGHT, info, fd);
-    CloseNamespace(&info->name_table);
+    CloseNamespace(&info->namesp);
 }
 
 void COMPILE_SEQ(TreeNode *node, CompilerInfo *info, int32_t fd)
@@ -115,7 +122,7 @@ void COMPILE_SEQ(TreeNode *node, CompilerInfo *info, int32_t fd)
 
 void COMPILE_ASS(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
-    int32_t ptr = GetVarPointer(&info->name_table, GET_VAR(CURR));
+    int32_t ptr = GetVarPointer(&info->namesp, GET_VAR(CURR));
     Compile(RIGHT, info, fd);
     dprintf(fd, "pop [%d+rbp]\n", ptr);
 }
@@ -127,7 +134,7 @@ void COMPILE_IF(TreeNode *node, CompilerInfo *info, int32_t fd)
     int32_t id = info->if_cnt++;
     dprintf(fd, "pop rax\n"
                 "cmp rax 0\n"
-                "ja  if%d\n"
+                "jne if%d\n"
                 "jmp else%d\n"
                 "if%d:\n", 
                 id, id, id);
@@ -149,7 +156,7 @@ void COMPILE_WHILE(TreeNode *node, CompilerInfo *info, int32_t fd)
     Compile(LEFT, info, fd);
     dprintf(fd, "pop rax\n"
                 "cmp rax 0\n"
-                "jbe end_loop%d\n", id);
+                "je end_loop%d\n", id);
     Compile(RIGHT, info, fd);
 
     dprintf(fd, "jmp loop%d\n"
@@ -159,6 +166,8 @@ void COMPILE_WHILE(TreeNode *node, CompilerInfo *info, int32_t fd)
 void COMPILE_CALL(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
     Compile(RIGHT, info, fd);
+
+    int32_t free_ptr = ((NameTable*) StackGetPtr(&info->namesp, info->namesp.size - 1))->free_ptr + 1;
     dprintf(fd, "push rbp\n"
                 "push %d\n"
                 "add\n"
@@ -168,9 +177,9 @@ void COMPILE_CALL(TreeNode *node, CompilerInfo *info, int32_t fd)
                 "push %d\n"
                 "sub\n"
                 "pop rbp\n",
-                info->name_table.free_ptr,
+                free_ptr,
                 GET_VAR(CURR),
-                info->name_table.free_ptr);
+                free_ptr);
 }
 
 void COMPILE_ARG(TreeNode *node, CompilerInfo *info, int32_t fd)
@@ -189,73 +198,157 @@ void COMPILE_PAR(TreeNode *node, CompilerInfo *info, int32_t fd)
 
 }
 
-int32_t GetVarPointer(NameTable *name_table, const char *name)
+int32_t GetVarPointer(Stack *stk, const char *name)
 {
-    for (int32_t i = 0; i < name_table->stk.size; ++i)
-    {
-        LocalVar *var = (LocalVar*) StackGetPtr(&name_table->stk, i);
+    NameTable *name_table = (NameTable*) StackGetPtr(stk, stk->size - 1);
+    Stack     *vars       = &name_table->stk;
 
-        if (strcasecmp(var->name, name) == 0)
-            return *((int32_t*) StackGetPtr(&var->mem, var->mem.size - 1));
+    for (int32_t i = 0; i < vars->size; ++i)
+    {
+        LocalVar *var = (LocalVar*) StackGetPtr(vars, i);
+
+        if (strcmp(var->name, name) == 0)
+            return var->ptr;
     }
 
-    assert(0 && "No var\n");  // TODO: fix CE
+    dprintf(2, "Var %s doesn't exist!\n", name);
+    assert(0);
 }
 
-int32_t AddLocalVar(NameTable *name_table, const char *name)
+int32_t AddLocalVar(Stack *stk, const char *name)
 {
-    for (int32_t i = 0; i < name_table->stk.size; ++i)
-    {
-        LocalVar *var = (LocalVar*) StackGetPtr(&name_table->stk, i);
+    NameTable *name_table = (NameTable*) StackGetPtr(stk, stk->size - 1);
+    Stack     *vars       = &name_table->stk;
 
-        if (strcasecmp(var->name, name) == 0)
-        {
-            *((int32_t*) StackGetPtr(&var->mem, var->mem.size - 1)) = name_table->free_ptr;
-            return name_table->free_ptr++;
-        }
+    for (int32_t i = 0; i < vars->size; ++i)
+    {
+        LocalVar *var = (LocalVar*) StackGetPtr(vars, i);
+
+        if (strcmp(var->name, name) == 0)
+            return var->ptr = name_table->free_ptr++;
     }
 
-    LocalVar new_local_var = 
+    LocalVar var =
         {
             .name = strdup(name),
-            .mem  = {}
+            .ptr  = name_table->free_ptr++
         };
 
-    StackCtor(&new_local_var.mem, 1, sizeof(int32_t));
-    StackPush(&new_local_var.mem, &name_table->free_ptr);
-    StackPush(&name_table->stk, &new_local_var);
+    StackPush(&name_table->stk, &var);
 
-    return name_table->free_ptr++;
+    return var.ptr;
 }
 
-void MakeNamespace(NameTable *name_table)
+void RepeatNameTable(Stack *stk)
 {
-    for (int32_t i = 0; i < name_table->stk.size; ++i)
+    if (stk->size > 0)
     {
-        LocalVar *var = (LocalVar*) StackGetPtr(&name_table->stk, i);
-        StackPush(&var->mem, StackGetPtr(&var->mem, var->mem.size - 1));
+        NameTable cp_table = {};
+        StackCtor(&cp_table.stk, 0, sizeof(LocalVar));
+        NameTable *last_name_table = (NameTable*) StackGetPtr(stk, stk->size - 1);
+        cp_table.free_ptr = last_name_table->free_ptr;
+
+        Stack *vars = &last_name_table->stk;
+        for (int32_t i = 0; i < vars->size; ++i)
+            StackPush(&cp_table.stk, (void*) StackGetPtr(vars, i));
+
+        StackPush(stk, &cp_table);
     }
 }
 
-void CloseNamespace(NameTable *name_table)
+void MakeNamespace(Stack *stk)
 {
-    int32_t min_free_ptr = INF;
-    for (int32_t i = 0; i < name_table->stk.size; ++i)
+    NameTable cp_table = {};
+    StackCtor(&cp_table.stk, 0, sizeof(LocalVar));
+    cp_table.free_ptr = 0;
+
+    StackPush(stk, &cp_table);
+}
+
+void CloseNamespace(Stack *stk)
+{
+    StackPop(stk);
+}
+
+void PreCompileOp(TreeNode *node)
+{
+    if (LEFT)
+        PreCompileOp(LEFT);
+
+    if (RIGHT)
+        PreCompileOp(RIGHT);
+
+    if (GET_TYPE(CURR) == TREE_NODE_TYPE_OP)
+    switch (GET_OP(CURR))
     {
-        LocalVar *var = (LocalVar*) StackGetPtr(&name_table->stk, i);
-
-        if (var->mem.size > 0)
-        {
-            int32_t  *var_ptr = (int32_t*) StackGetPtr(&var->mem, var->mem.size - 1);
-
-            if (*var_ptr < min_free_ptr)
-                min_free_ptr = *var_ptr;
-
-            StackPop(&var->mem);
-        }
+        case OP_TYPE_EXP:
+            TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
+                         {.var = "exp"},
+                         NULL,
+                         ARG(node->left, ARG(node->right, NULL)));
+            break;
+        case OP_TYPE_MOD:
+            TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
+                         {.var = "mod"},
+                         NULL,
+                         ARG(node->left, ARG(node->right, NULL)));
+            break;
+        case OP_TYPE_LEQ:
+            TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
+                         {.var = "leq"},
+                         NULL,
+                         ARG(node->left, ARG(node->right, NULL)));
+            break;
+        case OP_TYPE_GEQ:
+            TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
+                         {.var = "geq"},
+                         NULL,
+                         ARG(node->left, ARG(node->right, NULL)));
+            break;
+        case OP_TYPE_LES:
+            TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
+                         {.var = "les"},
+                         NULL,
+                         ARG(node->left, ARG(node->right, NULL)));
+            break;
+        case OP_TYPE_GER:
+            TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
+                         {.var = "ger"},
+                         NULL,
+                         ARG(node->left, ARG(node->right, NULL)));
+            break;
+        case OP_TYPE_EQ:
+            TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
+                         {.var = "eq"},
+                         NULL,
+                         ARG(node->left, ARG(node->right, NULL)));
+            break;
+        case OP_TYPE_NEQ:
+            TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
+                         {.var = "neq"},
+                         NULL,
+                         ARG(node->left, ARG(node->right, NULL)));
+            break;
+        case OP_TYPE_NOT:
+            TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
+                         {.var = "not"},
+                         NULL,
+                         ARG(node->right, NULL));
+            break;
+        case OP_TYPE_OR:
+            TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
+                         {.var = "or"},
+                         NULL,
+                         ARG(node->left, ARG(node->right, NULL)));
+            break;
+        case OP_TYPE_AND:
+            TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
+                         {.var = "and"},
+                         NULL,
+                         ARG(node->left, ARG(node->right, NULL)));
+            break;
     }
-
-    name_table->free_ptr = min_free_ptr;
+    
 }
 
 #undef CURR

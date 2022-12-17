@@ -1,0 +1,6 @@
+fun main()
+{
+    var a = (1 - 11) / (2 * 1);
+    var tr_ = out(a);
+}
+

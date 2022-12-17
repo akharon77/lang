@@ -116,10 +116,10 @@ const char *strCmp(const char *str, const char *tok, Token *val)
 
 const char *numCmp(const char *str, Token *val)
 {
-    int64_t res    = 0;
+    double  res    = 0;
     int32_t offset = 0;
 
-    if (sscanf(str, "%ld%n", &res, &offset))
+    if (sscanf(str, "%lg%n", &res, &offset) == 1 && isfinite(res))
     {
         val->val  = {.num = res};
         return str + offset;

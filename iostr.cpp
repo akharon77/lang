@@ -62,7 +62,7 @@ void InputText(TextInfo *text, const char *filename, int *err)
     RET_ERR(fstat(fd, &fileStatBuf) != 0, err, FILE_STATS_READING_ERROR);
 
     size_t  fileSize = (size_t) fileStatBuf.st_size;
-    char   *fileCont = (char*)  calloc(fileSize, sizeof(char));
+    char   *fileCont = (char*)  calloc(fileSize + 1, sizeof(char));
 
     RET_ERR(fileCont == NULL, err, FILE_CONTENT_MALLOC_ERROR);
 

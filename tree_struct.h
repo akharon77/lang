@@ -3,7 +3,7 @@
 
 union TreeNodeValue
 {
-    int64_t  dbl;
+    double   dbl;
     int32_t  op;
     char    *var;
 };
