@@ -78,7 +78,7 @@ void COMPILE_NVAR(TreeNode *node, CompilerInfo *info, int32_t fd)
 
     Compile(RIGHT, info, fd);
 
-    if (&info->namesp.size == 0)
+    if (info->namesp.size == 0)
     {
         ptr = AddGlobalVar(&info->globsp, GET_VAR(CURR));
         dprintf(fd, "pop [%d]\n", ptr);
@@ -250,16 +250,16 @@ int32_t AddGlobalVar(Stack *stk, const char *name)
 {
     char *new_name = strdup(name);
     StackPush(stk, &new_name);
-    return stk->size - 1;
+    return GLOB_SEC_PTR + stk->size - 1;
 }
 
 int32_t GetGlobVarPointer(Stack *stk, const char *name)
 {
     for (int32_t i = 0; i < stk->size; ++i)
     {
-        char *var_name = (char*) StackGetPtr(stk, i);
+        char **var_name = (char**) StackGetPtr(stk, i);
         
-        if (strcmp(var_name, name) == 0)
+        if (strcmp(*var_name, name) == 0)
             return GLOB_SEC_PTR + i;
     }
 

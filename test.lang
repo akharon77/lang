@@ -1,15 +1,11 @@
+var a = 1;
+
 fun main()
 {
-    var a = 1;
-    {
-        var a = 2;
-        var tr_ = out(a);
-    }
     var tr_ = out(a);
-    {
-        a = 2;
-    }
+    var a = 5;
     tr_ = out(a);
-    
 }
+
+var b = 1;
 

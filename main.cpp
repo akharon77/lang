@@ -20,17 +20,17 @@ int main(int argc, const char *argv[])
 
     Tokenize(&stk, text.base);
 
-    for (int32_t i = 0; i < stk.size; ++i)
-    {
-        Token tok = {};
-        StackGet(&stk, i, (void*) &tok);
-        
-        printf("id = %d, type = %d, ", tok.id, tok.type);
-        if (tok.type == TOK_TYPE_CONST)
-            printf("val = %g\n", tok.val.num);
-        else
-            printf("val = %s\n", tok.val.name);
-    }
+    // for (int32_t i = 0; i < stk.size; ++i)
+    // {
+    //     Token tok = {};
+    //     StackGet(&stk, i, (void*) &tok);
+    //     
+    //     printf("id = %d, type = %d, ", tok.id, tok.type);
+    //     if (tok.type == TOK_TYPE_CONST)
+    //         printf("val = %g\n", tok.val.num);
+    //     else
+    //         printf("val = %s\n", tok.val.name);
+    // }
 
     TreeNode *stmnt = TreeNodeNew();
     GetStatementsList(&stk, stmnt);
