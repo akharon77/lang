@@ -9,20 +9,31 @@
 void GetStatementsList(Stack *stk, TreeNode *value)
 {
     TreeNode *top_node = TreeNodeNew();
-    GetStatement(stk, top_node);
+    GetDefinitionStatement(stk, top_node);
 
-    while (stk->size > 0)
+    TreeNode *next_stmnt = NULL;
+    if (stk->size > 0)
     {
-        TreeNode *next_stmnt = TreeNodeNew();
-        GetStatement(stk, next_stmnt);
-
-        top_node = CreateTreeNode(TREE_NODE_TYPE_DEFS,
-                                  {.var = NULL},
-                                  top_node, next_stmnt);
+        next_stmnt = TreeNodeNew();
+        GetStatementsList(stk, next_stmnt);
     }
+
+    top_node = CreateTreeNode(TREE_NODE_TYPE_DEFS,
+                              {.var = NULL},
+                              top_node, next_stmnt);
 
     *value = *top_node;
     free(top_node);
+}
+
+void GetDefinitionStatement(Stack *stk, TreeNode *value)
+{
+    if (TestToken(stk, TOK_NFUN))
+        GetFunctionStatement(stk, value);
+    else if (TestToken(stk, TOK_NVAR))
+        GetNewVarStatement(stk, value);
+    else
+        ASSERT(0);
 }
 
 void GetStatement(Stack *stk, TreeNode *value)
@@ -33,8 +44,6 @@ void GetStatement(Stack *stk, TreeNode *value)
         GetBlockStatement(stk, value);
     else if (TestToken(stk, TOK_WHILE))
         GetWhileStatement(stk, value);
-    else if (TestToken(stk, TOK_NFUN))
-        GetFunctionStatement(stk, value);
     else if (TestToken(stk, TOK_RET))
         GetReturnStatement(stk, value);
     else if (TestToken(stk, TOK_NVAR))
@@ -505,23 +514,18 @@ void GetParamList(Stack *stk, TreeNode *value)
 
     GetIdent(stk, top_node);
 
+    TreeNode *next_par = NULL;
     if (TestToken(stk, TOK_COMMA))
     {
         NextToken(stk);
 
-        TreeNode *next_par = TreeNodeNew();
+        next_par = TreeNodeNew();
         GetParamList(stk, next_par);
+    }
 
-        top_node = CreateTreeNode(TREE_NODE_TYPE_PAR,
-                                  {.var = top_node->value.var},
-                                  NULL, next_par);
-    }
-    else
-    {
-        top_node = CreateTreeNode(TREE_NODE_TYPE_PAR,
-                                  {.var = top_node->value.var},
-                                  NULL, NULL);
-    }
+    top_node = CreateTreeNode(TREE_NODE_TYPE_PAR,
+                              {.var = top_node->value.var},
+                              NULL, next_par);
 
     *value = *top_node;
     free(top_node);

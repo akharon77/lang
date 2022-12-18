@@ -1,6 +1,15 @@
 fun main()
 {
-    var a = (1 - 11) / (2 * 1);
+    var a = 1;
+    {
+        var a = 2;
+        var tr_ = out(a);
+    }
     var tr_ = out(a);
+    {
+        a = 2;
+    }
+    tr_ = out(a);
+    
 }
 
