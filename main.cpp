@@ -33,7 +33,7 @@ int main(int argc, const char *argv[])
     // }
 
     TreeNode *stmnt = TreeNodeNew();
-    GetStatementsList(&stk, stmnt);
+    GetDefinitionStatementsList(&stk, stmnt);
 
     CompilerInfo info = {};
 

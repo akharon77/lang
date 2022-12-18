@@ -6,7 +6,7 @@
 #include "tree.h"
 #include "dsl.h"
 
-void GetStatementsList(Stack *stk, TreeNode *value)
+void GetDefinitionStatementsList(Stack *stk, TreeNode *value)
 {
     TreeNode *top_node = TreeNodeNew();
     GetDefinitionStatement(stk, top_node);
@@ -15,7 +15,7 @@ void GetStatementsList(Stack *stk, TreeNode *value)
     if (stk->size > 0)
     {
         next_stmnt = TreeNodeNew();
-        GetStatementsList(stk, next_stmnt);
+        GetDefinitionStatementsList(stk, next_stmnt);
     }
 
     top_node = CreateTreeNode(TREE_NODE_TYPE_DEFS,
@@ -34,6 +34,27 @@ void GetDefinitionStatement(Stack *stk, TreeNode *value)
         GetNewVarStatement(stk, value);
     else
         ASSERT(0);
+}
+
+
+void GetStatementsList(Stack *stk, TreeNode *value)
+{
+    TreeNode *top_node = TreeNodeNew();
+    GetStatement(stk, top_node);
+
+    TreeNode *next_stmnt = NULL;
+    if (!TestToken(stk, TOK_R_FIG_BR))
+    {
+        next_stmnt = TreeNodeNew();
+        GetStatementsList(stk, next_stmnt);
+    }
+
+    top_node = CreateTreeNode(TREE_NODE_TYPE_SEQ,
+                              {.var = NULL},
+                              top_node, next_stmnt);
+
+    *value = *top_node;
+    free(top_node);
 }
 
 void GetStatement(Stack *stk, TreeNode *value)
@@ -143,17 +164,7 @@ void GetBlockStatement(Stack *stk, TreeNode *value)
                  NULL,
                  TreeNodeNew());
 
-    GetStatement(stk, value->right);
-
-    while (!TestToken(stk, TOK_R_FIG_BR))
-    {
-        TreeNode *next_stmnt = TreeNodeNew();
-        GetStatement(stk, next_stmnt);
-
-        value->right = CreateTreeNode(TREE_NODE_TYPE_SEQ,
-                                      {.var = NULL},
-                                      value->right, next_stmnt);
-    }
+    GetStatementsList(stk, value->right);
 
     AssertToken(stk, NULL, TOK_R_FIG_BR);
 }

@@ -26,8 +26,9 @@ do                                                                      \
 }                                                                       \
 while (0)
 
-void GetStatementsList           (Stack *stk, TreeNode *value);
+void GetDefinitionStatementsList (Stack *stk, TreeNode *value);
 void GetDefinitionStatement      (Stack *stk, TreeNode *value);
+void GetStatementsList           (Stack *stk, TreeNode *value);
 void GetStatement                (Stack *stk, TreeNode *value);
 void GetNewVarStatement          (Stack *stk, TreeNode *value);
 void GetReturnStatement          (Stack *stk, TreeNode *value);
