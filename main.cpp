@@ -56,6 +56,7 @@ int main(int argc, const char *argv[])
     for (int32_t i = 0; i < 11; ++i)
         StackPush(&info.fun_table, (void*) &std_funcs[i]);
 
+    StackCtor(&info.globsp, 0, sizeof(char*));
     StackCtor(&info.namesp, 0, sizeof(NameTable));
     info.if_cnt = info.loop_cnt = 0;
 

@@ -32,15 +32,13 @@ void COMPILE_DEFS(TreeNode *node, CompilerInfo *info, int32_t fd)
 void COMPILE_NUM(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
     dprintf(fd, "push %ld\n", (int64_t) (GET_NUM(CURR) * 1000));
-    // dprintf(fd, "push 100\n"
-    //             "push %ld\n"
-    //             "mul\n",
-    //             GET_NUM(CURR));
 }
 
 void COMPILE_VAR(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
-    dprintf(fd, "push [%d+rbp]\n", GetVarPointer(&info->namesp, GET_VAR(CURR)));
+    dprintf(fd, "push ");
+    PrintVarPointer(GET_VAR(CURR), info, fd);
+    dprintf(fd, "\n");
 }
 
 void COMPILE_OP(TreeNode *node, CompilerInfo *info, int32_t fd)
@@ -62,9 +60,20 @@ void COMPILE_OP(TreeNode *node, CompilerInfo *info, int32_t fd)
 
 void COMPILE_NVAR(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
-    int32_t ptr = AddLocalVar(&info->namesp, GET_VAR(node));
+    int32_t ptr = 0;
+
     Compile(RIGHT, info, fd);
-    dprintf(fd, "pop [%d+rbp]\n", ptr);
+
+    if (&info->namesp.size == 0)
+    {
+        ptr = AddGlobalVar(&info->globsp, GET_VAR(CURR));
+        dprintf(fd, "pop [%d]\n", ptr);
+    }
+    else
+    {
+        ptr = AddLocalVar(&info->namesp, GET_VAR(CURR));
+        dprintf(fd, "pop [%d+rbp]\n", ptr);
+    }
 }
 
 void COMPILE_NFUN(TreeNode *node, CompilerInfo *info, int32_t fd)
@@ -124,7 +133,9 @@ void COMPILE_ASS(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
     int32_t ptr = GetVarPointer(&info->namesp, GET_VAR(CURR));
     Compile(RIGHT, info, fd);
-    dprintf(fd, "pop [%d+rbp]\n", ptr);
+    dprintf(fd, "pop ");
+    PrintVarPointer(GET_VAR(CURR), info, fd);
+    dprintf(fd, "\n");
 }
 
 void COMPILE_IF(TreeNode *node, CompilerInfo *info, int32_t fd)
@@ -198,6 +209,46 @@ void COMPILE_PAR(TreeNode *node, CompilerInfo *info, int32_t fd)
 
 }
 
+void PrintVarPointer(const char *name, CompilerInfo *info, int32_t fd)
+{
+    int32_t loc_var_ptr  = GetVarPointer     (&info->namesp, name);
+    int32_t glob_var_ptr = GetGlobVarPointer (&info->globsp, name);
+
+    if (loc_var_ptr != NO_VAR)
+    {
+        dprintf(fd, "[%d+rbp]", loc_var_ptr);
+    }
+    else if (glob_var_ptr != NO_VAR)
+    {
+        dprintf(fd, "[%d]", glob_var_ptr);
+    }
+    else
+    {
+        dprintf(2, "Var %s doesn't exist!\n", name);
+        ASSERT(0);
+    }
+}
+
+int32_t AddGlobalVar(Stack *stk, const char *name)
+{
+    char *new_name = strdup(name);
+    StackPush(stk, &new_name);
+    return stk->size - 1;
+}
+
+int32_t GetGlobVarPointer(Stack *stk, const char *name)
+{
+    for (int32_t i = 0; i < stk->size; ++i)
+    {
+        char *var_name = (char*) StackGetPtr(stk, i);
+        
+        if (strcmp(var_name, name) == 0)
+            return GLOB_SEC_PTR + i;
+    }
+
+    return NO_VAR;
+}
+
 int32_t GetVarPointer(Stack *stk, const char *name)
 {
     NameTable *name_table = (NameTable*) StackGetPtr(stk, stk->size - 1);
@@ -211,8 +262,7 @@ int32_t GetVarPointer(Stack *stk, const char *name)
             return var->ptr;
     }
 
-    dprintf(2, "Var %s doesn't exist!\n", name);
-    assert(0);
+    return NO_VAR;
 }
 
 int32_t AddLocalVar(Stack *stk, const char *name)

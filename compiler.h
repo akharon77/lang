@@ -5,7 +5,9 @@
 #include "stdint.h"
 #include "stack.h"
 
-const int32_t INF = 1e9;
+const int32_t GLOB_SEC_PTR = 0x12c;
+const int32_t INF          = 1e9;
+const int32_t NO_VAR       = -1;
 
 struct LocalVar
 {
@@ -28,6 +30,7 @@ struct NameTable
 struct CompilerInfo
 {
     Stack     namesp;
+    Stack     globsp;
     Stack     fun_table;
     Stack     rbp;
 
@@ -40,13 +43,16 @@ struct CompilerInfo
 #include "tree_node_types.h"
 #undef TYPE
 
-void    Compile         (TreeNode *node, CompilerInfo *info, int32_t fd);
-int32_t GetVarPointer   (Stack *stk, const char *name);
-int32_t AddLocalVar     (Stack *stk, const char *name);
-void    RepeatNameTable (Stack *stk);
-void    MakeNamespace   (Stack *stk);
-void    CloseNamespace  (Stack *stk);
-void    PreCompileOp    (TreeNode *node);
+void    Compile           (TreeNode *node, CompilerInfo *info, int32_t fd);
+void    PrintVarPointer   (const char *name, CompilerInfo *info, int32_t fd);
+int32_t GetGlobVarPointer (Stack *stk, const char *name);
+int32_t GetVarPointer     (Stack *stk, const char *name);
+int32_t AddGlobalVar      (Stack *stk, const char *name);
+int32_t AddLocalVar       (Stack *stk, const char *name);
+void    RepeatNameTable   (Stack *stk);
+void    MakeNamespace     (Stack *stk);
+void    CloseNamespace    (Stack *stk);
+void    PreCompileOp      (TreeNode *node);
 
 #endif  // COMPILER_H
 
