@@ -1,5 +1,10 @@
 var a = 1;
 
+fun f()
+{
+    tr_ = out(a);
+}
+
 fun main()
 {
     var tr_ = out(a);

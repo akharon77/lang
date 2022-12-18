@@ -4,8 +4,8 @@
 *.dd
 *.log
 *.ii
-vgcore*
 *.asm
+vgcore*
 *.bin
 *.png
 *.svg
