@@ -5,9 +5,11 @@
 #include "stdint.h"
 #include "stack.h"
 
-const int32_t GLOB_SEC_PTR = 0x12c;
-const int32_t INF          = 1e9;
-const int32_t NO_VAR       = -1;
+extern const char    *STD_LANG_PATH;
+extern const char    *STD_ASM_PATH;
+extern const int32_t  GLOB_SEC_PTR;
+extern const int32_t  INF;
+extern const int32_t  NO_VAR;
 
 struct LocalVar
 {
@@ -43,6 +45,7 @@ struct CompilerInfo
 #include "tree_node_types.h"
 #undef TYPE
 
+void    CompileProgram    (TreeNode *node, CompilerInfo *info, int32_t fd);
 void    Compile           (TreeNode *node, CompilerInfo *info, int32_t fd);
 void    PrintVarPointer   (const char *name, CompilerInfo *info, int32_t fd);
 int32_t GetGlobVarPointer (Stack *stk, const char *name);
@@ -53,6 +56,7 @@ void    RepeatNameTable   (Stack *stk);
 void    MakeNamespace     (Stack *stk);
 void    CloseNamespace    (Stack *stk);
 void    PreCompileOp      (TreeNode *node);
+void    AddStdAsmLib      (int32_t fd);
 
 #endif  // COMPILER_H
 

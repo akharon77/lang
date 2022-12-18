@@ -3,8 +3,22 @@
 #include "compiler.h"
 #include "tree.h"
 #include "dsl.h"
+#include "iostr.h"
+
+const char    *STD_ASM_PATH  = "std.asm";
+const int32_t  GLOB_SEC_PTR  = 0x12c;
+const int32_t  INF           = 1e9;
+const int32_t  NO_VAR        = -1;
 
 #define CURR node
+
+void CompileProgram(TreeNode *node, CompilerInfo *info, int32_t fd)
+{
+    Compile(node, info, fd);
+    AddStdAsmLib(fd);
+    dprintf(fd, "call main\n"
+                "hlt\n");
+}
 
 void Compile(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
@@ -78,7 +92,8 @@ void COMPILE_NVAR(TreeNode *node, CompilerInfo *info, int32_t fd)
 
 void COMPILE_NFUN(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
-    dprintf(fd, "%s:\n", GET_VAR(node));
+    dprintf(fd, "jmp %s_end\n", GET_VAR(CURR));
+    dprintf(fd, "%s:\n", GET_VAR(CURR));
 
     FunctionInfo func = 
         {
@@ -105,7 +120,9 @@ void COMPILE_NFUN(TreeNode *node, CompilerInfo *info, int32_t fd)
 
     Compile(RIGHT, info, fd);
     dprintf(fd, "push 0\n"
-                "ret\n");
+                "ret\n"
+                "%s_end:\n",
+                GET_VAR(CURR));
     
     CloseNamespace(&info->namesp);
 }
@@ -399,6 +416,19 @@ void PreCompileOp(TreeNode *node)
             break;
     }
     
+}
+
+void AddStdAsmLib(int32_t fd)
+{
+    int32_t err = 0;
+    TextInfo text = {};
+
+    TextInfoCtor(&text);
+    InputText(&text, STD_ASM_PATH, &err);
+
+    dprintf(fd, "%s\n", text.base);
+
+    TextInfoDtor(&text);
 }
 
 #undef CURR

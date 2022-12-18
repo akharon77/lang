@@ -3,16 +3,18 @@
 
 #include <stdio.h>
 
-#define ASSERT(expr)                                        \
-do {                                                        \
-    if (!(expr))                                            \
-        fprintf(stderr,                                     \
-                "Assertion failed. Expression: " #expr "\n" \
-                "File: %s, line: %d\n"                      \
-                "Function: %s\n",                           \
-                __FILE__, __LINE__,                         \
-                __PRETTY_FUNCTION__);                       \
-} while(0)
+#include "stack_debug.h"
+
+// #define ASSERT(expr)                                        \
+// do {                                                        \
+//     if (!(expr))                                            \
+//         fprintf(stderr,                                     \
+//                 "Assertion failed. Expression: " #expr "\n" \
+//                 "File: %s, line: %d\n"                      \
+//                 "Function: %s\n",                           \
+//                 __FILE__, __LINE__,                         \
+//                 __PRETTY_FUNCTION__);                       \
+// } while(0)
 
 #define LOG_ERROR(errorID)              \
 do {                                    \

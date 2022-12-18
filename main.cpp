@@ -63,7 +63,7 @@ int main(int argc, const char *argv[])
     PreCompileOp(stmnt);
     TreeDump(stmnt, "test");
 
-    Compile(stmnt, &info, 1);
+    CompileProgram(stmnt, &info, 1);
 
     TextInfoDtor(&text);
 
