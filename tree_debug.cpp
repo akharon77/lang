@@ -59,7 +59,7 @@ void TreeDumpToFile(TreeNode *node, int32_t fd, int64_t idx)
             sprintf(value, "%s", GetOperatorString(GET_OP(CURR)));
             break;
         case TREE_NODE_TYPE_NUM:
-            sprintf(value, "%ld", GET_NUM(CURR));
+            sprintf(value, "%.3lf", GET_NUM(CURR));
             break;
         default:
             sprintf(value, "%s", GET_VAR(CURR));
