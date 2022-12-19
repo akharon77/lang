@@ -60,15 +60,17 @@ int main(int argc, const char *argv[])
     StackCtor(&info.namesp, 0, sizeof(NameTable));
     info.if_cnt = info.loop_cnt = 0;
 
-    // GetTree("{ DEFS, NULL, { NFUN, factorial, { PAR, cnt, {}, {} }, { BLOCK, NULL, {}, { SEQ, NULL, { IF, NULL, { OP, LT, { VAR, cnt, {}, {} }, { CONST, 0.000, {}, {} } }, { BRANCH, NULL, { RET, NULL, {}, { OP, NEG, {}, { CONST, 1000.000, {}, {} } } }, {} } }, { SEQ, NULL, { IF, NULL, { OP, EQ, { VAR, cnt, {}, {} }, { CONST, 0.000, {}, {} } }, { BRANCH, NULL, { RET, NULL, {}, { CONST, 1.000, {}, {} } }, {} } }, { SEQ, NULL, { RET, NULL, {}, { OP, MUL, { VAR, cnt, {}, {} }, { CALL, factorial, {}, { ARG, NULL, { OP, SUB, { VAR, cnt, {}, {} }, { CONST, 1.000, {}, {} } }, {} } } } }, {} } } } } }, { DEFS, NULL, { NFUN, main, {}, { BLOCK, NULL, {}, { SEQ, NULL, { NVAR, num, {}, { CALL, read, {}, {} } }, { SEQ, NULL, { NVAR, val, {}, { CALL, factorial, {}, { ARG, NULL, { VAR, num, {}, {} }, {} } } }, { SEQ, NULL, { CALL, print, {}, { ARG, NULL, { VAR, val, {}, {} }, {} } }, { SEQ, NULL, { RET, NULL, {}, { CONST, 0.000, {}, {} } }, {} } } } } } }, {} } }", stmnt);
+    // GetTree("{DEFS, NULL, {NFUN, f, {ARG, n, {}, {}}, {BLOCK, NULL, {}, {SEQ, NULL, {IF, NULL, {OP, EQ, {VAR, n, {}, {}}, {CONST, 0.000, {}, {}}}, {BRANCH, NULL, {RET, NULL, {}, {CONST, 1.000, {}, {}}}, {RET, NULL, {}, {OP, MUL, {CALL, f, {}, {PAR, NULL, {OP, SUB, {VAR, n, {}, {}}, {CONST, 1.000, {}, {}}}, {}}}, {VAR, n, {}, {}}}}}}, {}}}}, {DEFS, NULL, {NFUN, main, {}, {BLOCK, NULL, {}, {SEQ, NULL, {NVAR, n, {}, {CALL, read, {}, {}}}, {SEQ, NULL, {CALL, print, {}, {PAR, NULL, {CALL, f, {}, {PAR, NULL, {VAR, n, {}, {}}, {}}}, {}}}, {}}}}}, {}}}", stmnt);
 
     TreeDump(stmnt, "test");
     SaveToFile(stmnt, 1);
+    Decompile(stmnt, 1);
 
     PreCompileOp(stmnt);
     TreeDump(stmnt, "test");
 
-    CompileProgram(stmnt, &info, 1);
+    //CompileProgram(stmnt, &info, 1);
+
 
     TextInfoDtor(&text);
 

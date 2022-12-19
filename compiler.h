@@ -40,13 +40,15 @@ struct CompilerInfo
     int32_t   loop_cnt;
 };
 
-#define TYPE(name) void COMPILE_##name(TreeNode *node, CompilerInfo *info, int32_t fd);
+#define TYPE(name) void COMPILE_##name(TreeNode *node, CompilerInfo *info, int32_t fd); \
+                   void DECOMPILE_##name(TreeNode *node, int32_t fd);
 
 #include "tree_node_types.h"
 #undef TYPE
 
 void    CompileProgram    (TreeNode *node, CompilerInfo *info, int32_t fd);
 void    Compile           (TreeNode *node, CompilerInfo *info, int32_t fd);
+void    Decompile         (TreeNode *node, int32_t fd);
 void    PrintVarPointer   (const char *name, CompilerInfo *info, int32_t fd);
 int32_t GetGlobVarPointer (Stack *stk, const char *name);
 int32_t GetVarPointer     (Stack *stk, const char *name);

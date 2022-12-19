@@ -434,5 +434,157 @@ void AddStdAsmLib(int32_t fd)
     TextInfoDtor(&text);
 }
 
+void Decompile(TreeNode *node, int32_t fd)
+{
+    if (CURR == NULL)
+        return;
+
+    #define TYPE(name)                  \
+        case TREE_NODE_TYPE_##name:     \
+            DECOMPILE_##name(CURR, fd); \
+            break;
+
+    switch (GET_TYPE(CURR))
+    {
+        #include "tree_node_types.h"
+    }
+    #undef TYPE
+}
+
+void DECOMPILE_DEFS(TreeNode *node, int32_t fd)
+{
+    Decompile(LEFT,  fd);
+    Decompile(RIGHT, fd);
+}
+
+void DECOMPILE_CONST(TreeNode *node, int32_t fd)
+{
+    dprintf(fd, "%ld", (int64_t) GET_NUM(CURR));
+}
+
+void DECOMPILE_VAR(TreeNode *node, int32_t fd)
+{
+    dprintf(fd, "%s", GET_VAR(CURR));
+}
+
+void DECOMPILE_OP(TreeNode *node, int32_t fd)
+{
+    Decompile(LEFT,  fd);
+
+    #define TYPE(op_code, str, cmd)   \
+        case OP_TYPE_##op_code:       \
+            dprintf(fd, " %s ", str); \
+            break;
+
+    switch (GET_OP(CURR))
+    {
+        #include "op_types.h"
+    }
+    #undef TYPE
+
+    Decompile(RIGHT, fd);
+}
+
+void DECOMPILE_NVAR(TreeNode *node, int32_t fd)
+{
+    dprintf(fd, "var %s = ", GET_VAR(CURR));
+    Decompile(RIGHT, fd);
+    dprintf(fd, ";\n");
+}
+
+void DECOMPILE_NFUN(TreeNode *node, int32_t fd)
+{
+    dprintf(fd, "fun %s(", GET_VAR(node));
+    Decompile(LEFT, fd);
+    dprintf(fd, ")\n");
+
+    Decompile(RIGHT, fd);
+}
+
+void DECOMPILE_RET(TreeNode *node, int32_t fd)
+{
+    dprintf(fd, "ret ");
+    Decompile(RIGHT, fd);
+    dprintf(fd, ";\n");
+}
+
+void DECOMPILE_BLOCK(TreeNode *node, int32_t fd)
+{
+    dprintf(fd, "{\n");
+    Decompile(RIGHT, fd);
+    dprintf(fd, "}\n");
+}
+
+void DECOMPILE_SEQ(TreeNode *node, int32_t fd)
+{
+    Decompile(LEFT,  fd);
+    if (GET_TYPE(LEFT) == TREE_NODE_TYPE_CALL)
+        dprintf(fd, ";\n");
+    Decompile(RIGHT, fd);
+}
+
+void DECOMPILE_ASS(TreeNode *node, int32_t fd)
+{
+    dprintf(fd, "%s = ", GET_VAR(CURR));
+    Decompile(RIGHT, fd);
+    dprintf(fd, ";\n");
+}
+
+void DECOMPILE_IF(TreeNode *node, int32_t fd)
+{
+    dprintf(fd, "if (");
+    Decompile(LEFT, fd);
+    dprintf(fd, ")\n");
+
+    Decompile(RIGHT->left, fd);
+
+    if (RIGHT->right)
+    {
+        dprintf(fd, "else\n");
+        Decompile(RIGHT->right, fd);
+    }
+}
+
+void DECOMPILE_WHILE(TreeNode *node, int32_t fd)
+{
+    dprintf(fd, "while (");
+    Decompile(LEFT, fd);
+    dprintf(fd, ")\n");
+
+    Decompile(RIGHT, fd);
+}
+
+void DECOMPILE_CALL(TreeNode *node, int32_t fd)
+{
+    dprintf(fd, "%s(", GET_VAR(CURR));
+    Decompile(RIGHT, fd);
+    dprintf(fd, ")");
+}
+
+void DECOMPILE_PAR(TreeNode *node, int32_t fd)
+{
+    Decompile(LEFT,  fd);
+    if (RIGHT)
+    {
+        dprintf(fd, ", ");
+        Decompile(RIGHT, fd);
+    }
+}
+
+void DECOMPILE_BRANCH(TreeNode *node, int32_t fd)
+{
+
+}
+
+void DECOMPILE_ARG(TreeNode *node, int32_t fd)
+{
+    dprintf(fd, "%s", GET_VAR(node));
+    if (RIGHT)
+    {
+        dprintf(fd, ", ");
+        Decompile(RIGHT, fd);
+    }
+}
+
 #undef CURR
 
