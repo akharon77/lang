@@ -18,7 +18,7 @@ sqrt:
         push 6
         add
         pop rbp
-        call les
+        call lt
         push rbp
         push 6
         sub
@@ -135,7 +135,7 @@ or:
     push 3
     add
     pop rbp
-    call ger
+    call gt
     push rbp
     push 3
     sub
@@ -155,7 +155,7 @@ or:
         push 3
         add
         pop rbp
-        call ger
+        call gt
         push rbp
         push 3
         sub
@@ -177,8 +177,8 @@ or:
     ret
 or_end:
 
-jmp ger_end
-ger:
+jmp gt_end
+gt:
     pop [1+rbp]
     pop [0+rbp]
     push [1+rbp]
@@ -187,7 +187,7 @@ ger:
     push 3
     add
     pop rbp
-    call les
+    call lt
     push rbp
     push 3
     sub
@@ -195,7 +195,7 @@ ger:
     ret
     push 0
     ret
-ger_end:
+gt_end:
 
 jmp geq_end
 geq:
@@ -207,7 +207,7 @@ geq:
     push 3
     add
     pop rbp
-    call les
+    call lt
     push rbp
     push 3
     sub
@@ -236,7 +236,7 @@ leq:
     push 3
     add
     pop rbp
-    call ger
+    call gt
     push rbp
     push 3
     sub
@@ -284,22 +284,22 @@ neq:
     ret
 neq_end:
 
-jmp les_end
-les:
+jmp lt_end
+lt:
     pop [1+rbp]
     pop [0+rbp]
     cmp [0+rbp] [1+rbp]
-    jb  les_if0
-    jmp les_else0
-    les_if0:
+    jb  lt_if0
+    jmp lt_else0
+    lt_if0:
         push 1
         ret
-        jmp les_end_if0
-    les_else0:
+        jmp lt_end_if0
+    lt_else0:
         push 0
         ret
-    les_end_if0:
-les_end:
+    lt_end_if0:
+lt_end:
 
 jmp eq_end
 eq:

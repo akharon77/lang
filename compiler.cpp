@@ -375,15 +375,15 @@ void PreCompileOp(TreeNode *node)
                          NULL,
                          ARG(node->left, ARG(node->right, NULL)));
             break;
-        case OP_TYPE_LES:
+        case OP_TYPE_LT:
             TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
-                         {.var = "les"},
+                         {.var = "lt"},
                          NULL,
                          ARG(node->left, ARG(node->right, NULL)));
             break;
-        case OP_TYPE_GER:
+        case OP_TYPE_GT:
             TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
-                         {.var = "ger"},
+                         {.var = "gt"},
                          NULL,
                          ARG(node->left, ARG(node->right, NULL)));
             break;

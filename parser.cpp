@@ -339,8 +339,8 @@ void GetRelativeExpression(Stack *stk, TreeNode *value)
 
     GetAdditiveExpression(stk, top_node);
     
-    while (TestToken(stk, TOK_LES) || TestToken(stk, TOK_LEQ) ||
-           TestToken(stk, TOK_GER) || TestToken(stk, TOK_GEQ))
+    while (TestToken(stk, TOK_LT) || TestToken(stk, TOK_LEQ) ||
+           TestToken(stk, TOK_GT) || TestToken(stk, TOK_GEQ))
     {
         Token tok = NextToken(stk);
 
@@ -349,9 +349,9 @@ void GetRelativeExpression(Stack *stk, TreeNode *value)
             
         switch (tok.id)
         {
-            case TOK_LES:
+            case TOK_LT:
                 top_node = CreateTreeNode(TREE_NODE_TYPE_OP,
-                               {.op = OP_TYPE_LES},
+                               {.op = OP_TYPE_LT},
                                top_node, next_val);
                 break;
             case TOK_LEQ:
@@ -359,9 +359,9 @@ void GetRelativeExpression(Stack *stk, TreeNode *value)
                                {.op = OP_TYPE_LEQ},
                                top_node, next_val);
                 break;
-            case TOK_GER:
+            case TOK_GT:
                 top_node = CreateTreeNode(TREE_NODE_TYPE_OP,
-                               {.op = OP_TYPE_GER},
+                               {.op = OP_TYPE_GT},
                                top_node, next_val);
                 break;
             case TOK_GEQ:
