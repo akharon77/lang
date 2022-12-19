@@ -8,6 +8,6 @@ fun f(n)
 
 fun main()
 {
-    var n = inp();
-    out(f(n));
+    var n = read();
+    print(f(n));
 }

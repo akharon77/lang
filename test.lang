@@ -10,6 +10,10 @@ fun main()
     out(a);
     var a = 5;
     out(a);
+    {
+        var a = 42;
+        out(a);
+    }
 }
 
 var b = 1;

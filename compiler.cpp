@@ -213,7 +213,7 @@ void COMPILE_CALL(TreeNode *node, CompilerInfo *info, int32_t fd)
                 free_ptr);
 }
 
-void COMPILE_ARG(TreeNode *node, CompilerInfo *info, int32_t fd)
+void COMPILE_PAR(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
     Compile(LEFT,  info, fd);
     Compile(RIGHT, info, fd);
@@ -224,7 +224,7 @@ void COMPILE_BRANCH(TreeNode *node, CompilerInfo *info, int32_t fd)
 
 }
 
-void COMPILE_PAR(TreeNode *node, CompilerInfo *info, int32_t fd)
+void COMPILE_ARG(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
 
 }
@@ -355,67 +355,67 @@ void PreCompileOp(TreeNode *node)
             TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
                          {.var = "exp"},
                          NULL,
-                         ARG(node->left, ARG(node->right, NULL)));
+                         PAR(node->left, PAR(node->right, NULL)));
             break;
         case OP_TYPE_MOD:
             TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
                          {.var = "mod"},
                          NULL,
-                         ARG(node->left, ARG(node->right, NULL)));
+                         PAR(node->left, PAR(node->right, NULL)));
             break;
         case OP_TYPE_LEQ:
             TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
                          {.var = "leq"},
                          NULL,
-                         ARG(node->left, ARG(node->right, NULL)));
+                         PAR(node->left, PAR(node->right, NULL)));
             break;
         case OP_TYPE_GEQ:
             TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
                          {.var = "geq"},
                          NULL,
-                         ARG(node->left, ARG(node->right, NULL)));
+                         PAR(node->left, PAR(node->right, NULL)));
             break;
         case OP_TYPE_LT:
             TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
                          {.var = "lt"},
                          NULL,
-                         ARG(node->left, ARG(node->right, NULL)));
+                         PAR(node->left, PAR(node->right, NULL)));
             break;
         case OP_TYPE_GT:
             TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
                          {.var = "gt"},
                          NULL,
-                         ARG(node->left, ARG(node->right, NULL)));
+                         PAR(node->left, PAR(node->right, NULL)));
             break;
         case OP_TYPE_EQ:
             TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
                          {.var = "eq"},
                          NULL,
-                         ARG(node->left, ARG(node->right, NULL)));
+                         PAR(node->left, PAR(node->right, NULL)));
             break;
         case OP_TYPE_NEQ:
             TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
                          {.var = "neq"},
                          NULL,
-                         ARG(node->left, ARG(node->right, NULL)));
+                         PAR(node->left, PAR(node->right, NULL)));
             break;
         case OP_TYPE_NOT:
             TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
                          {.var = "not"},
                          NULL,
-                         ARG(node->right, NULL));
+                         PAR(node->right, NULL));
             break;
         case OP_TYPE_OR:
             TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
                          {.var = "or"},
                          NULL,
-                         ARG(node->left, ARG(node->right, NULL)));
+                         PAR(node->left, PAR(node->right, NULL)));
             break;
         case OP_TYPE_AND:
             TreeNodeCtor(node, TREE_NODE_TYPE_CALL,
                          {.var = "and"},
                          NULL,
-                         ARG(node->left, ARG(node->right, NULL)));
+                         PAR(node->left, PAR(node->right, NULL)));
             break;
     }
     

@@ -192,7 +192,7 @@ const char *GetTree(const char *str, TreeNode *node)
         case TREE_NODE_TYPE_NFUN:
         case TREE_NODE_TYPE_CALL:
         case TREE_NODE_TYPE_VAR:
-        case TREE_NODE_TYPE_PAR:
+        case TREE_NODE_TYPE_ARG:
         case TREE_NODE_TYPE_ASS:
             {
                 int32_t len           = 0;

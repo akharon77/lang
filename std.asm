@@ -336,17 +336,17 @@ not:
     not_end_if0:
 not_end:
 
-jmp out_end
-out:
+jmp print_end
+print:
     out
-    pop
-    push 0
+    pop [0+rbp]
+    push [0+rbp]
     ret
-out_end:
+print_end:
 
-jmp inp_end
-inp:
+jmp read_end
+read:
     inp
     ret
-inp_end:
+read_end:
 

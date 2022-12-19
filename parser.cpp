@@ -250,7 +250,7 @@ void GetLogicalExpression(Stack *stk, TreeNode *value)
         top_node = CreateTreeNode(TREE_NODE_TYPE_CALL,
                                   {.var = strdup("ternary")},
                                   NULL, 
-                                  ARG(value, ARG(true_expr, ARG(false_expr, NULL))));
+                                  PAR(value, PAR(true_expr, PAR(false_expr, NULL))));
     }
 
     *value = *top_node;
@@ -507,23 +507,18 @@ void GetListExpressions(Stack *stk, TreeNode *value)
     TreeNode *top_node = TreeNodeNew();
     GetExpression(stk, top_node);
 
+    TreeNode *next_arg = NULL;
     if (TestToken(stk, TOK_COMMA))
     {
         NextToken(stk);
 
-        TreeNode *next_arg = TreeNodeNew();
+        next_arg = TreeNodeNew();
         GetListExpressions(stk, next_arg);
+    }
 
-        top_node = CreateTreeNode(TREE_NODE_TYPE_ARG,
-                                  {.var = NULL},
-                                  top_node, next_arg);
-    }
-    else
-    {
-        top_node = CreateTreeNode(TREE_NODE_TYPE_ARG,
-                                  {.var = NULL},
-                                  top_node, NULL);
-    }
+    top_node = CreateTreeNode(TREE_NODE_TYPE_PAR,
+                              {.var = NULL},
+                              top_node, next_arg);
 
     *value = *top_node;
     free(top_node);
@@ -544,7 +539,7 @@ void GetParamList(Stack *stk, TreeNode *value)
         GetParamList(stk, next_par);
     }
 
-    top_node = CreateTreeNode(TREE_NODE_TYPE_PAR,
+    top_node = CreateTreeNode(TREE_NODE_TYPE_ARG,
                               {.var = top_node->value.var},
                               NULL, next_par);
 

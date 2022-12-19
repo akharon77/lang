@@ -9,7 +9,7 @@
 #define VAR_CTOR(node, val, subst)         TreeNodeCtor   (node,     TREE_NODE_TYPE_VAR, {.var = strdup(val)}, NULL, subst)
 #define CREATE_VAR(val)             CreateTreeNode (          TREE_NODE_TYPE_VAR, {.var = strdup(val)}, NULL, NULL)
 
-#define ARG(val, rhs)        CreateTreeNode(           TREE_NODE_TYPE_ARG,   {.var = NULL}, val, rhs)
+#define PAR(val, rhs)        CreateTreeNode(           TREE_NODE_TYPE_PAR,   {.var = NULL}, val, rhs)
 #define BLOCK(val, rhs)      CreateTreeNode(           TREE_NODE_TYPE_BLOCK, {.var = NULL}, val, rhs)
 
 #define LEFT                        (CURR)->left
