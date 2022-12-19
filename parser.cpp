@@ -590,13 +590,3 @@ void GetNumber(Stack *stk, TreeNode *value)
     TokenDtor(&tok);
 }
 
-// void AssertToken(Stack *stk, Token *tok, int32_t tok_id)
-// {
-//     Token buf_token = {};
-//     if (tok == NULL)
-//         tok = &buf_token;
-// 
-//     StackPop(stk, tok);
-//     assert(tok->id == tok_id);
-// }
-

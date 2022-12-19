@@ -18,7 +18,6 @@ enum TOKENS_TYPES
 };
 
 #define TOKEN(name, type, cmp, str, op_code, cmd) TOK_##name,
-
 enum TOKENS
 {
     #include "tokens.h"

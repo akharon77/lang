@@ -60,6 +60,9 @@ int main(int argc, const char *argv[])
     StackCtor(&info.namesp, 0, sizeof(NameTable));
     info.if_cnt = info.loop_cnt = 0;
 
+    GetTree("{DEFS, NULL, {NVAR, a, {}, {CONST, 1.000, {}, {}}}, {}}", stmnt);
+
+    TreeDump(stmnt, "test");
     SaveToFile(stmnt, 1);
 
     PreCompileOp(stmnt);

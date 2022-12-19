@@ -5,6 +5,7 @@
 #include "stack_debug.h"
 #include "tree.h"
 #include "dsl.h"
+#include "ctype.h"
 
 #define CURR node
 
@@ -122,6 +123,7 @@ void SaveToFile(TreeNode *node, int32_t fd)
                     #include "op_types.h"
                 }
                 #undef TYPE
+                break;
             default:
                 if (GET_VAR(node) == NULL)
                     dprintf(fd, "NULL, ");
@@ -135,5 +137,132 @@ void SaveToFile(TreeNode *node, int32_t fd)
     }
 
     dprintf(fd, "}");
+}
+
+const char *SkipSpaces(const char *str)
+{
+    while (isspace(*str))
+        ++str;
+
+    return str;
+}
+
+const char *GetTree(const char *str, TreeNode *node)
+{
+    ASSERT(*str == '{');
+    ++str;
+    str = SkipSpaces(str);
+
+    if (*str == '}')
+    {
+        GET_TYPE(node) = -1;
+        return str + 1;
+    }
+
+    #define TYPE(name)                                   \
+        if (strncasecmp(str, #name, strlen(#name)) == 0) \
+        {                                                \
+            GET_TYPE(node) = TREE_NODE_TYPE_##name;      \
+            str += strlen(#name);                        \
+        }                                                \
+        else
+    #include "tree_node_types.h"
+    // else
+    {
+        dprintf(2, "Unknown type here: %.10s\n", str);
+        ASSERT(0);
+    }
+    #undef TYPE
+
+    str = SkipSpaces(str);
+    ASSERT(*str == ',');
+    ++str;
+    str = SkipSpaces(str);
+
+    switch (GET_TYPE(node))
+    {
+        case TREE_NODE_TYPE_CONST:
+            {
+                int32_t offset = 0;
+                sscanf(str, "%lf%n", &GET_NUM(node), &offset);
+                str += offset;
+            }
+            break;
+        case TREE_NODE_TYPE_NVAR:
+        case TREE_NODE_TYPE_NFUN:
+        case TREE_NODE_TYPE_CALL:
+        case TREE_NODE_TYPE_VAR:
+        case TREE_NODE_TYPE_PAR:
+        case TREE_NODE_TYPE_ASS:
+            {
+                int32_t len           = 0;
+                const char *str_old = str;
+
+                while (*str != ',')
+                    ++str;
+
+                GET_VAR(node) = strndup(str_old, str - str_old);
+            }
+            break;
+        case TREE_NODE_TYPE_OP:
+            {
+                #define TYPE(op_code, tr1, tr2)                             \
+                    if (strncasecmp(str, #op_code, strlen(#op_code)) == 0)  \
+                    {                                                       \
+                        GET_OP(node) = OP_TYPE_##op_code;                   \
+                        str += strlen(#op_code);                            \
+                    }                                                       \
+                    else
+
+                #include "op_types.h"
+                #undef TYPE
+                // else
+                {
+                    dprintf(2, "Unknown operation code here: %.10s\n", str);
+                    ASSERT(0);
+                }
+            }
+            break;
+        default:
+            if (strncasecmp(str, "NULL", 4) == 0)
+            {
+                GET_VAR(node) = NULL;
+                str += 4;
+            }
+            else
+                ASSERT(0);
+    }
+
+    str = SkipSpaces(str);
+    ASSERT(*str == ',');
+    ++str;
+    str = SkipSpaces(str);
+
+    node->left = TreeNodeNew();
+    str = GetTree(str, node->left);
+    if (GET_TYPE(node->left) == -1)
+    {
+        free(node->left);
+        node->left = NULL;
+    }
+
+    str = SkipSpaces(str);
+    ASSERT(*str == ',');
+    ++str;
+    str = SkipSpaces(str);
+
+    node->right = TreeNodeNew();
+    str = GetTree(str, node->right);
+    if (GET_TYPE(node->right) == -1)
+    {
+        free(node->right);
+        node->right = NULL;
+    }
+
+    str = SkipSpaces(str);
+    ASSERT(*str == '}');
+    ++str;
+
+    return str;
 }
 
