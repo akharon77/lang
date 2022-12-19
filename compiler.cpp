@@ -12,6 +12,22 @@ const int32_t  NO_VAR        = -1;
 
 #define CURR node
 
+void CompilerInfoCtor(CompilerInfo *info)
+{
+    StackCtor(&info->fun_table, 0, sizeof(FunctionInfo));
+    StackCtor(&info->globsp,    0, sizeof(char*));
+    StackCtor(&info->namesp,    0, sizeof(NameTable));
+    info->if_cnt = info->loop_cnt = 0;
+}
+
+void CompilerInfoDtor(CompilerInfo *info)
+{
+    StackDtor(&info->fun_table);
+    StackDtor(&info->globsp);
+    StackDtor(&info->namesp);
+    info->if_cnt = info->loop_cnt = 0;
+}
+
 void CompileProgram(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
     Compile(node, info, fd);

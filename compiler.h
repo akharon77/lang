@@ -46,6 +46,8 @@ struct CompilerInfo
 #include "tree_node_types.h"
 #undef TYPE
 
+void    CompilerInfoCtor  (CompilerInfo *info);
+void    CompilerInfoDtor  (CompilerInfo *info);
 void    CompileProgram    (TreeNode *node, CompilerInfo *info, int32_t fd);
 void    Compile           (TreeNode *node, CompilerInfo *info, int32_t fd);
 void    Decompile         (TreeNode *node, int32_t fd);

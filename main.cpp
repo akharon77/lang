@@ -6,19 +6,116 @@
 #include "compiler.h"
 #include "tree_debug.h"
 #include "iostr.h"
+#include "lang.h"
+#include "colors.h"
+
+const Option EXEC_OPTIONS[] = 
+    {
+        {"--input-lang",        "-il",  INPUT_LANG_FILE_OPTION,       "lang from file (default: input.lang)"},
+        {"--input-tree",        "-it",  INPUT_TREE_FILE_OPTION,       "tree from file (default: input.ast)"},
+        {"--output-tree",      "-ot",   OUTPUT_TREE_FILE_OPTION,      "output to tree file (default: output.ast)"},
+        {"--output-asm",       "-oa",   OUTPUT_ASM_FILE_OPTION,       "output to asm file (default: output.asm)"},
+        {"--output-lang",      "-ol",   OUTPUT_LANG_FILE_OPTION,      "output to lang file (default: output.lang)"},
+        {"--tree-lang",        "-tl",   TREE_TO_LANG_COMPILE_OPTION,  "tree to lang decompilation"},
+        {"--lang-tree",        "-lt",   LANG_TO_TREE_COMPILE_OPTION,  "lang to tree compilation"},
+        {"--lang-asm",         "-la",   LANG_TO_ASM_COMPILE_OPTION,   "lang to asm compilation"},
+        {"--help",             "-h",    HELP_OPTION,                  "show help"}
+    };
+ 
+const size_t N_EXEC_OPTIONS = sizeof(EXEC_OPTIONS) / sizeof(Option);
 
 int main(int argc, const char *argv[])
 {
-    int32_t err = 0;
+    const char *input_lang_filename  = "input.lang", 
+               *input_tree_filename  = "input.ast",
+               *output_asm_filename  = "output.asm",
+               *output_tree_filename = "output.ast",
+               *output_lang_filename = "output.lang";
 
-    Stack stk = {};
-    TokenizerCtor(&stk);
+    int err = 0;
+    int options[N_EXEC_OPTIONS] = {};
 
-    TextInfo text = {};
-    TextInfoCtor(&text);
-    InputText(&text, argv[1], &err);
+    bool ok = GetOptions(argc, argv, options, EXEC_OPTIONS, N_EXEC_OPTIONS);
+    if (!ok)
+    {
+        printf(RED "Wrong arguments\n" NORMAL);
+        return 1;
+    }
 
-    Tokenize(&stk, text.base);
+    if (options[HELP_OPTION])
+    {
+        for (int i = 0; i < N_EXEC_OPTIONS; ++i)
+            printf("%20s %10s %s\n",
+                    EXEC_OPTIONS[i].strFormLong,
+                    EXEC_OPTIONS[i].strFormShort,
+                    EXEC_OPTIONS[i].description);
+        return 0;
+    }
+
+    if (options[INPUT_LANG_FILE_OPTION])
+        input_lang_filename = argv[options[INPUT_LANG_FILE_OPTION] + 1];
+    if (options[INPUT_TREE_FILE_OPTION])
+        input_tree_filename = argv[options[INPUT_TREE_FILE_OPTION] + 1];
+    if (options[OUTPUT_TREE_FILE_OPTION])
+        output_tree_filename = argv[options[OUTPUT_TREE_FILE_OPTION] + 1];
+    if (options[OUTPUT_ASM_FILE_OPTION])
+        output_asm_filename = argv[options[OUTPUT_ASM_FILE_OPTION] + 1];
+    if (options[OUTPUT_LANG_FILE_OPTION])
+        output_lang_filename = argv[options[OUTPUT_LANG_FILE_OPTION] + 1];
+
+    if (options[LANG_TO_TREE_COMPILE_OPTION] || options[LANG_TO_ASM_COMPILE_OPTION])
+    {
+        Stack stk = {};
+        TokenizerCtor(&stk);
+
+        TextInfo text = {};
+        TextInfoCtor(&text);
+        InputText(&text, input_lang_filename, &err);
+
+        Tokenize(&stk, text.base);
+
+        TreeNode *stmnt = TreeNodeNew();
+        GetDefinitionStatementsList(&stk, stmnt);
+
+        if (options[LANG_TO_TREE_COMPILE_OPTION])
+        {
+            int32_t fd = creat(output_tree_filename, S_IRWXU);
+            SaveToFile(stmnt, fd);
+            close(fd);
+        }
+        else
+        {
+            int32_t fd = creat(output_asm_filename, S_IRWXU);
+
+            CompilerInfo info = {};
+            CompilerInfoCtor(&info);
+
+            PreCompileOp(stmnt);
+            CompileProgram(stmnt, &info, fd);
+
+            CompilerInfoDtor(&info);
+            close(fd);
+        }
+
+        TokenizerDtor(&stk);
+        TextInfoDtor(&text);
+    }
+    else if (options[TREE_TO_LANG_COMPILE_OPTION])
+    {
+        TextInfo text = {};
+        TextInfoCtor(&text);
+        InputText(&text, input_tree_filename, &err);
+
+        TreeNode *root = TreeNodeNew();
+        GetTree(text.base, root);
+
+        int32_t fd = creat(output_lang_filename, S_IRWXU);
+        Decompile(root, fd);
+
+        close(fd);
+        TextInfoDtor(&text);
+    }
+
 
     // for (int32_t i = 0; i < stk.size; ++i)
     // {
@@ -31,48 +128,6 @@ int main(int argc, const char *argv[])
     //     else
     //         printf("val = %s\n", tok.val.name);
     // }
-
-    TreeNode *stmnt = TreeNodeNew();
-    GetDefinitionStatementsList(&stk, stmnt);
-
-    CompilerInfo info = {};
-
-    StackCtor(&info.fun_table, 0, sizeof(FunctionInfo));
-    FunctionInfo std_funcs[] = 
-        {
-            {"exp", 2},
-            {"mod", 2},
-            {"leq", 2},
-            {"geq", 2},
-            {"les", 2},
-            {"ger", 2},
-            {"eq",  2},
-            {"neq", 2},
-            {"not", 1},
-            {"or",  2},
-            {"and", 2},
-            {"out", 1}
-        };
-    for (int32_t i = 0; i < 11; ++i)
-        StackPush(&info.fun_table, (void*) &std_funcs[i]);
-
-    StackCtor(&info.globsp, 0, sizeof(char*));
-    StackCtor(&info.namesp, 0, sizeof(NameTable));
-    info.if_cnt = info.loop_cnt = 0;
-
-    // GetTree("{DEFS, NULL, {NFUN, f, {ARG, n, {}, {}}, {BLOCK, NULL, {}, {SEQ, NULL, {IF, NULL, {OP, EQ, {VAR, n, {}, {}}, {CONST, 0.000, {}, {}}}, {BRANCH, NULL, {RET, NULL, {}, {CONST, 1.000, {}, {}}}, {RET, NULL, {}, {OP, MUL, {CALL, f, {}, {PAR, NULL, {OP, SUB, {VAR, n, {}, {}}, {CONST, 1.000, {}, {}}}, {}}}, {VAR, n, {}, {}}}}}}, {}}}}, {DEFS, NULL, {NFUN, main, {}, {BLOCK, NULL, {}, {SEQ, NULL, {NVAR, n, {}, {CALL, read, {}, {}}}, {SEQ, NULL, {CALL, print, {}, {PAR, NULL, {CALL, f, {}, {PAR, NULL, {VAR, n, {}, {}}, {}}}, {}}}, {}}}}}, {}}}", stmnt);
-
-    TreeDump(stmnt, "test");
-    SaveToFile(stmnt, 1);
-    Decompile(stmnt, 1);
-
-    PreCompileOp(stmnt);
-    TreeDump(stmnt, "test");
-
-    //CompileProgram(stmnt, &info, 1);
-
-
-    TextInfoDtor(&text);
 
     return 0;
 }
