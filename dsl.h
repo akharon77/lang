@@ -1,8 +1,8 @@
 #ifndef DSL_H
 #define DSL_H
 
-#define NUM_CTOR(node, val)         TreeNodeCtor   (node,     TREE_NODE_TYPE_NUM, {.dbl = val},         NULL, NULL)
-#define CREATE_NUM(val)             CreateTreeNode (          TREE_NODE_TYPE_NUM, {.dbl = val},         NULL, NULL)
+#define NUM_CTOR(node, val)         TreeNodeCtor   (node,     TREE_NODE_TYPE_CONST, {.dbl = val},         NULL, NULL)
+#define CREATE_NUM(val)             CreateTreeNode (          TREE_NODE_TYPE_CONST, {.dbl = val},         NULL, NULL)
 
 #define OP_CTOR(node, val, lhs, rhs) TreeNodeCtor   (node,     TREE_NODE_TYPE_OP,  {.op  = val},          lhs,  rhs)
 
@@ -33,7 +33,7 @@
 #define IS_OP(node)                 (node != NULL && GET_TYPE(node) == TREE_NODE_TYPE_OP)
 #define IS_OP_CODE(node, op_code)   (IS_OP(node) && GET_OP(node) == op_code)
 
-#define IS_NUM(node)                (node != NULL && GET_TYPE(node) == TREE_NODE_TYPE_NUM)
+#define IS_NUM(node)                (node != NULL && GET_TYPE(node) == TREE_NODE_TYPE_CONST)
 
 #define EPS                          1e-6
 

@@ -58,7 +58,7 @@ void TreeDumpToFile(TreeNode *node, int32_t fd, int64_t idx)
         case TREE_NODE_TYPE_OP:
             sprintf(value, "%s", GetOperatorString(GET_OP(CURR)));
             break;
-        case TREE_NODE_TYPE_NUM:
+        case TREE_NODE_TYPE_CONST:
             sprintf(value, "%.3lf", GET_NUM(CURR));
             break;
         default:

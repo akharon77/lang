@@ -89,3 +89,51 @@ bool CompareTree(TreeNode *left, TreeNode *right)
     return IS_EQ_NODE(left, right) && CompareTree(left->left, right->left) && CompareTree(left->right, right->right);
 }
 
+void SaveToFile(TreeNode *node, int32_t fd)
+{
+    dprintf(fd, "{");
+
+    if (node != NULL)
+    {
+        #define TYPE(name)               \
+            case TREE_NODE_TYPE_##name:  \
+                dprintf(fd, #name ", "); \
+                break;
+
+        switch (GET_TYPE(node))
+        {
+            #include "tree_node_types.h"
+        }
+        #undef TYPE
+
+        switch (GET_TYPE(node))
+        {
+            case TREE_NODE_TYPE_CONST:
+                dprintf(fd, "%.3lf, ", GET_NUM(node));
+                break;
+            case TREE_NODE_TYPE_OP:
+                #define TYPE(op_code, str, cmd)     \
+                    case OP_TYPE_##op_code:         \
+                        dprintf(fd, #op_code ", "); \
+                        break;
+
+                switch (GET_OP(node))
+                {
+                    #include "op_types.h"
+                }
+                #undef TYPE
+            default:
+                if (GET_VAR(node) == NULL)
+                    dprintf(fd, "NULL, ");
+                else
+                    dprintf(fd, "%s, ", GET_VAR(node));
+        }
+
+        SaveToFile(node->left,  fd);
+        dprintf(fd, ", ");
+        SaveToFile(node->right, fd);
+    }
+
+    dprintf(fd, "}");
+}
+

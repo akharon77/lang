@@ -583,7 +583,7 @@ void GetIdent(Stack *stk, TreeNode *value)
 void GetNumber(Stack *stk, TreeNode *value)
 {
     Token tok = NextToken(stk);
-    TreeNodeCtor(value, TREE_NODE_TYPE_NUM,
+    TreeNodeCtor(value, TREE_NODE_TYPE_CONST,
                 {.dbl = tok.val.num},
                 NULL, NULL);
 

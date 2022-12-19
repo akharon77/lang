@@ -60,10 +60,13 @@ int main(int argc, const char *argv[])
     StackCtor(&info.namesp, 0, sizeof(NameTable));
     info.if_cnt = info.loop_cnt = 0;
 
+    SaveToFile(stmnt, 1);
+
     PreCompileOp(stmnt);
     TreeDump(stmnt, "test");
 
     CompileProgram(stmnt, &info, 1);
+
 
     TextInfoDtor(&text);
 

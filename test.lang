@@ -2,14 +2,14 @@ var a = 1;
 
 fun f()
 {
-    tr_ = out(a);
+    out(a);
 }
 
 fun main()
 {
-    var tr_ = out(a);
+    out(a);
     var a = 5;
-    tr_ = out(a);
+    out(a);
 }
 
 var b = 1;

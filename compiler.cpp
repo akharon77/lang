@@ -43,7 +43,7 @@ void COMPILE_DEFS(TreeNode *node, CompilerInfo *info, int32_t fd)
     Compile(RIGHT, info, fd);
 }
 
-void COMPILE_NUM(TreeNode *node, CompilerInfo *info, int32_t fd)
+void COMPILE_CONST(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
     dprintf(fd, "push %ld\n", (int64_t) (GET_NUM(CURR) * 1000));
 }
