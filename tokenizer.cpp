@@ -84,13 +84,15 @@ void Tokenize(Stack *stk, const char *str)
 
 bool TestToken(Stack *stk, int32_t id)
 {
+    return TestToken(stk, id, 0); 
+}
+
+bool TestToken(Stack *stk, int32_t id, int32_t offset)
+{
     if (stk->size == 0)
         return false;
 
-    Token tok = {};
-    StackTop(stk, &tok);
-
-    return tok.id == id; 
+    return ((Token*) StackGetPtr(stk, stk->size - 1 - offset))->id == id;
 }
 
 Token NextToken(Stack *stk)

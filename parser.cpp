@@ -69,8 +69,18 @@ void GetStatement(Stack *stk, TreeNode *value)
         GetReturnStatement(stk, value);
     else if (TestToken(stk, TOK_NVAR))
         GetNewVarStatement(stk, value);
-    else
+    else if (TestToken(stk, TOK_ASS, 1))
         GetAssignStatement(stk, value);
+    else if (TestToken(stk, TOK_L_RND_BR, 1))
+        GetCallStatement(stk, value);
+    else
+        assert(0);
+}
+
+void GetCallStatement(Stack *stk, TreeNode *value)
+{
+    GetFunctionExpression(stk, value);
+    AssertToken(stk, NULL, TOK_COMDOT);
 }
 
 void GetNewVarStatement(Stack *stk, TreeNode *value)

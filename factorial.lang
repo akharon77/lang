@@ -9,5 +9,5 @@ fun f(n)
 fun main()
 {
     var n = inp();
-    var tr_ = out(f(n));
+    out(f(n));
 }

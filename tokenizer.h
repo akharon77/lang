@@ -50,6 +50,7 @@ void        TokenEmpty    (Token *tok);
 void        Tokenize      (Stack *stk, const char *str);
 
 bool        TestToken     (Stack *stk, int32_t id);
+bool        TestToken     (Stack *stk, int32_t id, int32_t offset);
 Token       NextToken     (Stack *stk);
 
 const char *strCmp        (const char *str, const char *tok, Token *val);

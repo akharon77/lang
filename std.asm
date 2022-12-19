@@ -13,7 +13,7 @@ sqrt:
     pop [4+rbp]
     sqrt_loop0:
         push [3+rbp]
-        push 100000
+        push 50000
         push rbp
         push 6
         add

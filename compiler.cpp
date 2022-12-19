@@ -143,6 +143,9 @@ void COMPILE_BLOCK(TreeNode *node, CompilerInfo *info, int32_t fd)
 void COMPILE_SEQ(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
     Compile(LEFT,  info, fd);
+    if (GET_TYPE(LEFT) == TREE_NODE_TYPE_CALL)
+        dprintf(fd, "pop\n");
+
     Compile(RIGHT, info, fd);
 }
 

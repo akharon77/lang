@@ -1,20 +1,19 @@
 fun solveLinear(a, b)
 {
     var x = 0;
-    var tr_ = 0;
 
     if (a == 0)
     {
         if (b == 0) 
-            tr_ = out(1000);
+            ret 1000;
         else
-            tr_ = out(0);
+            ret 0;
     }
     else
     {
         x = -b / a;
-        tr_ = out(1);
-        tr_ = out(x);
+        out(x);
+        ret 1;
     }
 
     ret -1;
@@ -24,11 +23,10 @@ fun solveSquare(a, b, c)
 {
     var x1 = 0;
     var x2 = 0;
-    var tr_ = 0;
 
     if (a == 0)
     {
-        tr_ = solveLinear(b, c);
+        ret solveLinear(b, c);
     }
     else
     {
@@ -36,27 +34,24 @@ fun solveSquare(a, b, c)
 
         if (D < 0)
         {
-            tr_ = out(0);
+            ret 0;
         }
         else 
         {
             if (D > 0)
             {
                 var sqrt_D = sqrt(D);
-                tr_ = out(-b);
-                tr_ = out(sqrt_D);
-                tr_ = out(a);
                 x1 = (-b - sqrt_D) / (2 * a);
                 x2 = (-b + sqrt_D) / (2 * a);
-                tr_ = out(2);
-                tr_ = out(x1);
-                tr_ = out(x2);
+                out(x1);
+                out(x2);
+                ret 2;
             }
             else
             {
                 x1 = -b / (2 * a);
-                tr_ = out(1);
-                tr_ = out(x1);
+                out(x1);
+                ret 1;
             }
         }
     }
@@ -66,11 +61,10 @@ fun solveSquare(a, b, c)
 
 fun main()
 {
-    var tr_ = 0;
     var a  = inp();
     var b  = inp();
     var c  = inp();
 
-    tr_ = solveSquare(a, b, c);
+    out(solveSquare(a, b, c));
 }
 
