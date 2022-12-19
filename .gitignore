@@ -11,5 +11,6 @@ vgcore*
 *.svg
 *.txt
 *.html
+*.ast
 .*
 *~
