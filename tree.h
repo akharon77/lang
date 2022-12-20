@@ -36,7 +36,7 @@ TreeNode   *GetMaxSubtree    (TreeNode *node);
 bool        CompareTree      (TreeNode *left, TreeNode *right);
 bool        NodeIsLeaf       (TreeNode *node);
 
-void        SaveToFile       (TreeNode *node, int32_t fd);
+void        SaveToFile       (TreeNode *node, int32_t fd, int32_t depth);
 const char *GetTree          (const char *str, TreeNode *node);
 
 #endif  // TREE_H

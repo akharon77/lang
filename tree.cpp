@@ -6,6 +6,7 @@
 #include "tree.h"
 #include "dsl.h"
 #include "ctype.h"
+#include "compiler.h"
 
 #define CURR node
 
@@ -90,15 +91,17 @@ bool CompareTree(TreeNode *left, TreeNode *right)
     return IS_EQ_NODE(left, right) && CompareTree(left->left, right->left) && CompareTree(left->right, right->right);
 }
 
-void SaveToFile(TreeNode *node, int32_t fd)
+void SaveToFile(TreeNode *node, int32_t fd, int32_t depth)
 {
-    dprintf(fd, "{");
+    Tabstabe(fd, depth);
+    dprintf(fd, "{\n");
 
     if (node != NULL)
     {
         #define TYPE(name)               \
             case TREE_NODE_TYPE_##name:  \
-                dprintf(fd, #name ", "); \
+                Tabstabe(fd, depth);     \
+                dprintf(fd, #name ",\n"); \
                 break;
 
         switch (GET_TYPE(node))
@@ -110,12 +113,14 @@ void SaveToFile(TreeNode *node, int32_t fd)
         switch (GET_TYPE(node))
         {
             case TREE_NODE_TYPE_CONST:
-                dprintf(fd, "%.3lf, ", GET_NUM(node));
+                Tabstabe(fd, depth);
+                dprintf(fd, "%.3lf,\n", GET_NUM(node));
                 break;
             case TREE_NODE_TYPE_OP:
                 #define TYPE(op_code, str, cmd)     \
                     case OP_TYPE_##op_code:         \
-                        dprintf(fd, #op_code ", "); \
+                        Tabstabe(fd, depth);\
+                        dprintf(fd, #op_code ",\n"); \
                         break;
 
                 switch (GET_OP(node))
@@ -126,16 +131,24 @@ void SaveToFile(TreeNode *node, int32_t fd)
                 break;
             default:
                 if (GET_VAR(node) == NULL)
-                    dprintf(fd, "NULL, ");
+                {
+                    Tabstabe(fd, depth);
+                    dprintf(fd, "NULL,\n");
+                }
                 else
-                    dprintf(fd, "%s, ", GET_VAR(node));
+                {
+                    Tabstabe(fd, depth);
+                    dprintf(fd, "%s,\n", GET_VAR(node));
+                }
         }
 
-        SaveToFile(node->left,  fd);
-        dprintf(fd, ", ");
-        SaveToFile(node->right, fd);
+        SaveToFile(node->left,  fd, depth + 1);
+        dprintf(fd, ",\n");
+        SaveToFile(node->right, fd, depth + 1);
+        dprintf(fd, "\n");
     }
 
+    Tabstabe(fd, depth);
     dprintf(fd, "}");
 }
 
@@ -149,6 +162,7 @@ const char *SkipSpaces(const char *str)
 
 const char *GetTree(const char *str, TreeNode *node)
 {
+    str = SkipSpaces(str);
     ASSERT(*str == '{');
     ++str;
     str = SkipSpaces(str);

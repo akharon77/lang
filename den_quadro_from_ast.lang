@@ -1,0 +1,96 @@
+fun squareSolver(ainu, bobtail, cat)
+{
+	if (ainu == 0)
+		ret linerEquation(cat, bobtail);
+	if (bobtail == 0)
+		ret similarRoot(cat, ainu);
+	if (cat == 0)
+		ret simpleEquation(bobtail, ainu);
+	ret squareEquation(cat, bobtail, ainu);
+}
+
+fun simpleEquation(ainu, bobtail)
+{
+	print(2);
+	print(0);
+	print( - bobtail / ainu);
+	ret 2;
+}
+
+fun linerEquation(bobtail, cat)
+{
+	if (bobtail == 0)
+		if (cat == 0)
+			{
+				print(666);
+				ret 666;
+			}
+
+		else
+			{
+				print(0);
+				ret 0;
+			}
+
+	print(1);
+	print( - cat / bobtail);
+	ret 1;
+}
+
+fun similarRoot(ainu, cat)
+{
+	if (ainu * cat > 0)
+		{
+			print(0);
+			ret 0;
+		}
+
+	if (cat == 0)
+		{
+			print(1);
+			print(0);
+			ret 1;
+		}
+
+	print(2);
+	var rottweiler =  - cat / ainu;
+	print(rottweiler);
+	print( - rottweiler);
+	ret 2;
+}
+
+fun squareEquation(ainu, bobtail, cat)
+{
+	var dalmatian = bobtail * bobtail - 4 * cat * ainu;
+	if (dalmatian < 0)
+		{
+			print(0);
+			ret 0;
+		}
+
+	if (dalmatian == 0)
+		{
+			print(1);
+			var rottweiler =  - bobtail / 2 * ainu;
+			print(rottweiler);
+			ret 1;
+		}
+
+	var damaiant = sqrt(dalmatian);
+	print(2);
+	var rottweiler =  - bobtail + damaiant / 2 * ainu;
+	var russianHound =  - bobtail - damaiant / 2 * ainu;
+	print(rottweiler);
+	print(russianHound);
+	ret 2;
+}
+
+fun main()
+{
+	var ainu = read();
+	var bobtail = read();
+	var cat = read();
+	squareSolver(cat, bobtail, ainu);
+	ret 0;
+}
+

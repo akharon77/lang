@@ -398,3 +398,10 @@ flush:
     push 1
     ret
 flush_end:
+
+jmp neg_end
+neg:
+    push -1
+    mul
+    ret
+neg_end:

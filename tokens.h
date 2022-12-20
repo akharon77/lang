@@ -1,7 +1,7 @@
 TOKEN (PLUS,     OP,      STR_CMP,   "+",     ADD,  "add")
 TOKEN (MINUS,    OP,      STR_CMP,   "-",     SUB,  "sub")
-TOKEN (MUL,      OP,      STR_CMP,   "*",     MUL,  "mul\npush 1000\ndiv\n")
-TOKEN (DIV,      OP,      STR_CMP,   "/",     DIV,  "pop rax\npush 1000\nmul\npush rax\ndiv\n")
+TOKEN (MUL,      OP,      STR_CMP,   "*",     MUL,  "push 1000\ndiv\nmul\n") //\npush 1000\ndiv\n")
+TOKEN (DIV,      OP,      STR_CMP,   "/",     DIV,  "push 1000\ndiv\ndiv\n") //pop rax\npush 1000\nmul\npush rax\ndiv\n")
 TOKEN (EXP,      OP,      STR_CMP,   "^",     EXP,  "call exp")
 TOKEN (PRCNT,    OP,      STR_CMP,   "%",     MOD,  "call mod")
 

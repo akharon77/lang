@@ -1,0 +1,12 @@
+fun f(n)
+{
+	if (n == 0)
+		ret 1;
+	else
+		ret f(n - 1) * n;
+}
+fun main()
+{
+	var n = read();
+	print(f(n));
+}

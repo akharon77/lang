@@ -80,7 +80,7 @@ int main(int argc, const char *argv[])
         if (options[LANG_TO_TREE_COMPILE_OPTION])
         {
             int32_t fd = creat(output_tree_filename, S_IRWXU);
-            SaveToFile(stmnt, fd);
+            SaveToFile(stmnt, fd, 0);
             close(fd);
         }
         else
@@ -110,7 +110,7 @@ int main(int argc, const char *argv[])
         GetTree(text.base, root);
 
         int32_t fd = creat(output_lang_filename, S_IRWXU);
-        Decompile(root, fd);
+        Decompile(root, fd, 0);
 
         close(fd);
         TextInfoDtor(&text);

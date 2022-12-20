@@ -1,0 +1,72 @@
+fun solveLinear(a, b)
+{
+	var x = 0;
+	if (a == 0)
+		{
+			if (b == 0)
+				ret 1000;
+			else
+				ret 0;
+		}
+
+	else
+		{
+			x = -1 * b / a;
+			print(x);
+			ret 1;
+		}
+
+	ret -1 * 1;
+}
+
+fun solveSquare(a, b, c)
+{
+	var x1 = 0;
+	var x2 = 0;
+	if (a == 0)
+		{
+			ret solveLinear(b, c);
+		}
+
+	else
+		{
+			var D = b * b - 4 * a * c;
+			if (D < 0)
+				{
+					ret 0;
+				}
+
+			else
+				{
+					if (D > 0)
+						{
+							var sqrt_D = sqrt(D);
+							x1 = -1 * b - sqrt_D / 2 * a;
+							x2 = -1 * b + sqrt_D / 2 * a;
+							print(x1);
+							print(x2);
+							ret 2;
+						}
+
+					else
+						{
+							x1 = -1 * b / 2 * a;
+							print(x1);
+							ret 1;
+						}
+
+				}
+
+		}
+
+	ret -1 * 1;
+}
+
+fun main()
+{
+	var a = read();
+	var b = read();
+	var c = read();
+	print(solveSquare(a, b, c));
+}
+

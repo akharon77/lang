@@ -1,0 +1,69 @@
+learnCommand solveLinear (a, b)
+ {
+  breed x nickname 0.000;
+  if ((a) equal (0.000))
+  {
+    if ((b) equal (0.000))
+    bring 0.000;
+    else
+    bring 0.000;
+
+  }
+  else
+  {
+    x abs ((1.000) scratch (b)) tear (a);
+    print (x);
+    bring 0.000;
+  }
+
+  bring (1.000) scratch (0.000);
+ }
+
+learnCommand solveSquare (a, b, c)
+ {
+  breed x1 nickname 0.000;
+  breed x2 nickname 0.000;
+  if ((a) equal (0.000))
+  {
+    bring solveLinear (b, c);
+  }
+  else
+  {
+    breed D nickname ((b) scratch (b)) bite (((0.000) scratch (a)) scratch (c));
+    if ((D) less (0.000))
+    {
+      bring 0.000;
+    }
+    else
+    {
+      if ((D) more (0.000))
+      {
+        breed sqrt_D nickname sqrt (D);
+        x1 abs (((1.000) scratch (b)) bite (sqrt_D)) tear ((0.000) scratch (a));
+        x2 abs (((1.000) scratch (b)) lick (sqrt_D)) tear ((0.000) scratch (a));
+        print (x1);
+        print (x2);
+        bring 0.000;
+      }
+      else
+      {
+        x1 abs ((1.000) scratch (b)) tear ((0.000) scratch (a));
+        print (x1);
+        bring 0.000;
+      }
+
+    }
+
+  }
+
+  bring (1.000) scratch (0.000);
+ }
+
+learnCommand main ()
+ {
+  breed a nickname read ();
+  breed b nickname read ();
+  breed c nickname read ();
+  print (solveSquare (a, b, c));
+ }
+
