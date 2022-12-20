@@ -1,6 +1,6 @@
 fun set_pixel(x, y, ch)
 {
     var real_x = 40 + x * 40;
-    var real_y = 12 + 12 * y * (-1);
+    var real_y = 12 + 12 * -y;
     var ind = (80 * real_y + real_x) / 1000;
 }

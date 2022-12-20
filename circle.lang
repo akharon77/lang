@@ -1,22 +1,16 @@
 fun main()
 {
-    set_pixel(0.5, 0.5, 72);
-    set_pixel(-0.5, 0.5, 72);
-    set_pixel(0.5, -0.5, 72);
-    set_pixel(-0.5, -0.5, 72);
-    set_pixel(0, 0, 70);
-    flush();
     var x = -1;
-    var y = -1;
     while (x < 1)
     {
+        var y = -1;
         while (y < 1)
         {
-            if (x*x + y*y <= 1)
+            if (2*x*x + y*y <= 0.5)
                 set_pixel(x, y, 72);
-            y = y + 0.001;
+            y = y + 0.05;
         }
-        x = x + 0.001;
+        x = x + 0.05;
     }
     flush();
     ret 0;
