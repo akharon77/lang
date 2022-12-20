@@ -1,0 +1,6 @@
+fun main()
+{
+    set_pixel(0, 0, 72);
+    flush();
+    ret 0;
+}

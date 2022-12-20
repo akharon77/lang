@@ -32,7 +32,11 @@ void CompileProgram(TreeNode *node, CompilerInfo *info, int32_t fd)
 {
     Compile(node, info, fd);
     AddStdAsmLib(fd);
-    dprintf(fd, "call main\n"
+    dprintf(fd, "push 900\n"
+                "pop rgm\n"
+                "push 1800\n"
+                "pop rvb\n"
+                "call main\n"
                 "hlt\n");
 }
 
@@ -97,7 +101,7 @@ void COMPILE_NVAR(TreeNode *node, CompilerInfo *info, int32_t fd)
     if (info->namesp.size == 0)
     {
         ptr = AddGlobalVar(&info->globsp, GET_VAR(CURR));
-        dprintf(fd, "pop [%d]\n", ptr);
+        dprintf(fd, "pop [%d+rgm]\n", ptr);
     }
     else
     {
@@ -123,7 +127,6 @@ void COMPILE_NFUN(TreeNode *node, CompilerInfo *info, int32_t fd)
     while (par != NULL)
     {
         int32_t ptr = AddLocalVar(&info->namesp, GET_VAR(par));
-        // dprintf(fd, "pop [%d+rbp]\n", ptr);
 
         ++func.arg_cnt;
         par = par->right;
@@ -256,7 +259,7 @@ void PrintVarPointer(const char *name, CompilerInfo *info, int32_t fd)
     }
     else if (glob_var_ptr != NO_VAR)
     {
-        dprintf(fd, "[%d]", glob_var_ptr);
+        dprintf(fd, "[%d+rgm]", glob_var_ptr);
     }
     else
     {
@@ -269,7 +272,7 @@ int32_t AddGlobalVar(Stack *stk, const char *name)
 {
     char *new_name = strdup(name);
     StackPush(stk, &new_name);
-    return GLOB_SEC_PTR + stk->size - 1;
+    return stk->size - 1;
 }
 
 int32_t GetGlobVarPointer(Stack *stk, const char *name)
@@ -279,7 +282,7 @@ int32_t GetGlobVarPointer(Stack *stk, const char *name)
         char **var_name = (char**) StackGetPtr(stk, i);
         
         if (strcmp(*var_name, name) == 0)
-            return GLOB_SEC_PTR + i;
+            return i;
     }
 
     return NO_VAR;
