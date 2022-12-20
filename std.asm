@@ -357,37 +357,36 @@ set_pixel:
     pop [0+rbp]
     push 40000
     push [0+rbp]
-    push 80000
-    push 1000
-    div
+    push 40
     mul
     add
+    push 1000
+    div
     pop [3+rbp]
+
     push 12000
     push [1+rbp]
-    push 24000
-    push 1000
-    div
+    push -12
     mul
     add
-    pop [4+rbp]
-    push 80000
-    push [4+rbp]
     push 1000
     div
+    pop [4+rbp]
+
+    push [4+rbp]
+    push 80
     mul
     push [3+rbp]
     add
-    push 1000000
-    push 1000
-    div
-    div
     pop [5+rbp]
+
     push [5+rbp]
     push rvb
     add
     pop rax
     push [2+rbp]
+    push 1000
+    div
     pop [rax]
     push [2+rbp]
     ret
